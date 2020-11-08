@@ -1,84 +1,35 @@
 import { Client, Message, MessageEmbed } from 'discord.js';
-import { DogarsSet, getSet, randomSet, searchSet } from './dogars';
+import {
+  DogarsSet,
+  getSet,
+  randomSet,
+  searchSet,
+} from './dogars';
 
 const token = process.env.TOKEN || '';
 
 const client = new Client();
 client.login(token);
 
-client.on('message', async (msg) => {
-  if (msg.content.startsWith('!dt')) {
-    const content = msg.content.substr(3).trim();
+const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
-    if (content.match(/^[0-9]+$/)) {
-      const contentAsId = parseInt(content);
-
-      const getSetResponse = await getSet(contentAsId);
-
-      if (getSetResponse) {
-        const [set, setText] = getSetResponse;
-
-        msg.reply(createSetEmbed(set, setText));
-      } else {
-        replyWithError(msg);
-      }
-    } else {
-      const searchSetResponse = await searchSet(content);
-
-      if (searchSetResponse) {
-        const [set, setText] = searchSetResponse;
-
-        msg.reply(createSetEmbed(set, setText));
-      } else {
-        replyWithError(msg);
-      }
-    }
-  } else if (msg.content.startsWith('!randpoke')) {
-    const randomSetResponse = await randomSet();
-
-    if (randomSetResponse) {
-      const [set, setText] = randomSetResponse;
-
-      msg.reply(createSetEmbed(set, setText));
-    } else {
-      replyWithError(msg);
-    }
+const getNormalizedUniqueName = (species: string) => {
+  const h = species.indexOf('-');
+  if (h === -1) {
+    return toId(species);
   }
-});
 
-const replyWithError = (message: Message) => {
-  message.reply(
-    new MessageEmbed()
-      .setColor('RED')
-      .setDescription('Set either does not exist or an unknown error occured.')
-  );
-};
-
-export let toId = (text: any) => {
-  if (text && text.id) {
-      text = text.id;
-  } else if (text && text.userid) {
-      text = text.userid;
+  if (species.toLowerCase() === 'kommo-o') {
+    return 'kommoo';
   }
-  if (typeof text !== 'string' && typeof text !== 'number') return '';
-  return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-};
 
-let getNormalizedUniqueName = (species: string) => {
-  let h = species.indexOf('-');
-  if (h == -1)
-      return toId(species);
-  if (species.toLowerCase() == "kommo-o")
-      return "kommoo";
   return `${toId(species.substr(0, h).toLowerCase())}-${toId(species.substr(h + 1))}`;
 };
 
-export const getPokemonImage = (set: DogarsSet) => {
-  return `https://play.pokemonshowdown.com/sprites/xyani${(set.shiny === 1 && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.gif`;
-}
+const getPokemonImage = (set: DogarsSet) => `https://play.pokemonshowdown.com/sprites/xyani${(set.shiny === 1 && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.gif`;
 
 const createSetEmbed = (set: DogarsSet, setText: string) => {
-  const author = `${set.creator || 'Anonymous'} ${set.hash ? ' !' + set.hash : ''}`;
+  const author = `${set.creator || 'Anonymous'} ${set.hash ? ` !${set.hash}` : ''}`;
   const params = new URLSearchParams();
 
   params.set('page', '1');
@@ -113,3 +64,51 @@ const createSetEmbed = (set: DogarsSet, setText: string) => {
 
   return embed;
 };
+
+const replyWithError = (message: Message) => {
+  message.reply(
+    new MessageEmbed()
+      .setColor('RED')
+      .setDescription('Set either does not exist or an unknown error occured.'),
+  );
+};
+
+client.on('message', async (msg) => {
+  if (msg.content.startsWith('!dt')) {
+    const content = msg.content.substr(3).trim();
+
+    if (content.match(/^[0-9]+$/)) {
+      const contentAsId = parseInt(content, 10);
+
+      const getSetResponse = await getSet(contentAsId);
+
+      if (getSetResponse) {
+        const [set, setText] = getSetResponse;
+
+        msg.reply(createSetEmbed(set, setText));
+      } else {
+        replyWithError(msg);
+      }
+    } else {
+      const searchSetResponse = await searchSet(content);
+
+      if (searchSetResponse) {
+        const [set, setText] = searchSetResponse;
+
+        msg.reply(createSetEmbed(set, setText));
+      } else {
+        replyWithError(msg);
+      }
+    }
+  } else if (msg.content.startsWith('!randpoke')) {
+    const randomSetResponse = await randomSet();
+
+    if (randomSetResponse) {
+      const [set, setText] = randomSetResponse;
+
+      msg.reply(createSetEmbed(set, setText));
+    } else {
+      replyWithError(msg);
+    }
+  }
+});

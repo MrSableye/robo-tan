@@ -92,11 +92,11 @@ const setToString = (set: DogarsSet) => {
     SpA: set.spa_iv,
     SpD: set.spd_iv,
     Spe: set.spe_iv,
-  }
+  };
   const ivLine = statsToString(ivs, 31);
   if (ivLine) lines.push(`IVs: ${ivLine}`);
 
-  const moves = [set.move_1, set.move_2, set.move_3, set.move_4].filter(move => move);
+  const moves = [set.move_1, set.move_2, set.move_3, set.move_4].filter((move) => move);
 
   if (moves.length > 0) {
     lines.push(...moves.map((move) => `- ${move}`));
@@ -114,13 +114,13 @@ export const getSet = async (id: number): Promise<[DogarsSet, string] | undefine
   } catch (error) {
     return undefined;
   }
-}
+};
 
 export const randomSet = async () => {
   const setId = (await Axios.get<number>('https://dogars.ga/api/random')).data;
 
   return getSet(setId);
-}
+};
 
 export const searchSet = async (query: string): Promise<[DogarsSet, string] | undefined> => {
   try {
@@ -131,7 +131,9 @@ export const searchSet = async (query: string): Promise<[DogarsSet, string] | un
 
       return [sets[0], setText];
     }
+
+    return undefined;
   } catch (error) {
     return undefined;
   }
-}
+};
