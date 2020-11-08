@@ -79,10 +79,23 @@ export const getPokemonImage = (set: DogarsSet) => {
 
 const createSetEmbed = (set: DogarsSet, setText: string) => {
   const author = `${set.creator || 'Anonymous'} ${set.hash ? ' !' + set.hash : ''}`;
+  const params = new URLSearchParams();
+
+  params.set('page', '1');
+
+  if (set.creator) {
+    params.set('creator', set.creator);
+  }
+
+  if (set.hash) {
+    params.set('hash', set.hash);
+  }
+
+  const authorLink = `https://dogars.ga/results?${params.toString()}`;
 
   let embed = new MessageEmbed()
     .setTitle(set.name || set.species)
-    .setAuthor(author, 'https://dogars.ga/img/icons/favicon-32x32.png')
+    .setAuthor(author, 'https://dogars.ga/img/icons/favicon-32x32.png', (set.creator || set.hash) ? authorLink : undefined)
     .setURL(`https://dogars.ga/set/${set.id}`)
     .setThumbnail(getPokemonImage(set))
     .setTimestamp(set.date_added)
