@@ -9,14 +9,14 @@ client.login(token);
 client.on('message', async (msg) => {
   if (msg.content.startsWith('!dt')) {
     const content = msg.content.substr(3).trim();
-    const contentAsId = parseInt(content);
 
-    if (isNaN(contentAsId)) {
-      const [set, setText] = await searchSet(content);
+    if (content.match(/^[0-9]+$/)) {
+      const contentAsId = parseInt(content);
+      const [set, setText] = await getSet(contentAsId);
 
       msg.reply(createSetEmbed(set, setText));
     } else {
-      const [set, setText] = await getSet(contentAsId);
+      const [set, setText] = await searchSet(content);
 
       msg.reply(createSetEmbed(set, setText));
     }
