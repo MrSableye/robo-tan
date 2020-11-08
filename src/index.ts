@@ -1,4 +1,4 @@
-import { Client, MessageEmbed } from 'discord.js';
+import { Client, Message, MessageEmbed } from 'discord.js';
 import { DogarsSet, getSet, randomSet, searchSet } from './dogars';
 
 const token = process.env.TOKEN || '';
@@ -12,20 +12,47 @@ client.on('message', async (msg) => {
 
     if (content.match(/^[0-9]+$/)) {
       const contentAsId = parseInt(content);
-      const [set, setText] = await getSet(contentAsId);
+
+      const getSetResponse = await getSet(contentAsId);
+
+      if (getSetResponse) {
+        const [set, setText] = getSetResponse;
+
+        msg.reply(createSetEmbed(set, setText));
+      } else {
+        replyWithError(msg);
+      }
+    } else {
+      const searchSetResponse = await searchSet(content);
+
+      if (searchSetResponse) {
+        const [set, setText] = searchSetResponse;
+
+        msg.reply(createSetEmbed(set, setText));
+      } else {
+        replyWithError(msg);
+      }
+    }
+  } else if (msg.content.startsWith('!randpoke')) {
+    const randomSetResponse = await randomSet();
+
+    if (randomSetResponse) {
+      const [set, setText] = randomSetResponse;
 
       msg.reply(createSetEmbed(set, setText));
     } else {
-      const [set, setText] = await searchSet(content);
-
-      msg.reply(createSetEmbed(set, setText));
+      replyWithError(msg);
     }
-  } else if (msg.content.startsWith('!randpoke')) {
-    const [set, setText] = await randomSet();
-
-    msg.reply(createSetEmbed(set, setText));
   }
 });
+
+const replyWithError = (message: Message) => {
+  message.reply(
+    new MessageEmbed()
+      .setColor('RED')
+      .setDescription('Set either does not exist or an unknown error occured.')
+  );
+};
 
 export let toId = (text: any) => {
   if (text && text.id) {
@@ -63,6 +90,10 @@ const createSetEmbed = (set: DogarsSet, setText: string) => {
 
   if (set.description) {
     embed = embed.addField('Description', set.description);
+  }
+
+  if (set.has_custom === 1) {
+    embed = embed.setImage(`https://dogars.ga/api/custom/${set.id}`);
   }
 
   embed = embed.addField('Set', `\`\`\`${setText}\`\`\``);

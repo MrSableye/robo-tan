@@ -96,7 +96,7 @@ const setToString = (set: DogarsSet) => {
   const ivLine = statsToString(ivs, 31);
   if (ivLine) lines.push(`IVs: ${ivLine}`);
 
-  const moves = [set.move_1, set.move_2, set.move_3, set.move_4].filter(move => move !== undefined);
+  const moves = [set.move_1, set.move_2, set.move_3, set.move_4].filter(move => move);
 
   if (moves.length > 0) {
     lines.push(...moves.map((move) => `- ${move}`));
@@ -105,11 +105,15 @@ const setToString = (set: DogarsSet) => {
   return lines.join('\n');
 };
 
-export const getSet = async (id: number): Promise<[DogarsSet, string]> => {
-  const set = (await Axios.get<DogarsSet>(`https://dogars.ga/api/sets/${id}`)).data;
-  const setText = setToString(set);
+export const getSet = async (id: number): Promise<[DogarsSet, string] | undefined> => {
+  try {
+    const set = (await Axios.get<DogarsSet>(`https://dogars.ga/api/sets/${id}`)).data;
+    const setText = setToString(set);
 
-  return [set, setText];
+    return [set, setText];
+  } catch (error) {
+    return undefined;
+  }
 }
 
 export const randomSet = async () => {
@@ -118,14 +122,16 @@ export const randomSet = async () => {
   return getSet(setId);
 }
 
-export const searchSet = async (query: string): Promise<[DogarsSet, string]> => {
-  const sets = (await Axios.get<DogarsPage>('https://dogars.ga/api/search', { params: { q: query, page: 1 } })).data[1];
+export const searchSet = async (query: string): Promise<[DogarsSet, string] | undefined> => {
+  try {
+    const sets = (await Axios.get<DogarsPage>('https://dogars.ga/api/search', { params: { q: query, page: 1 } })).data[1];
 
-  if (sets.length > 0) {
-    const setText = setToString(sets[0]);
+    if (sets.length > 0) {
+      const setText = setToString(sets[0]);
 
-    return [sets[0], setText];
+      return [sets[0], setText];
+    }
+  } catch (error) {
+    return undefined;
   }
-  
-  throw 'error';
 }
