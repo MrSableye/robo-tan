@@ -1,5 +1,6 @@
 import { Client, Message, MessageEmbed } from 'discord.js';
 import {
+  advancedSearch,
   DogarsSet,
   getSet,
   randomSet,
@@ -109,6 +110,28 @@ client.on('message', async (msg) => {
       msg.reply(createSetEmbed(set, setText));
     } else {
       replyWithError(msg);
+    }
+  } else if (msg.content.startsWith('Hi Dogars-nyan!')) {
+    msg.reply(`Hi ${msg.member?.nickname || msg.author.username}`);
+  } else if (msg.content.startsWith('!search')) {
+    const content = msg.content.substr(7).trim();
+
+    const parameters = content.split(',').reduce((currentParameters: { [key: string]: string }, parameter) => {
+      if (parameter.indexOf(':') >= 0) {
+        const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim());
+
+        currentParameters[parameterName] = parameterValue;
+      }
+
+      return currentParameters;
+    }, {});
+
+    const advancedSearchResult = await advancedSearch(parameters);
+
+    if (advancedSearchResult) {
+      const [set, setText] = advancedSearchResult;
+
+      msg.reply(createSetEmbed(set, setText));
     }
   }
 });

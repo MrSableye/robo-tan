@@ -137,3 +137,19 @@ export const searchSet = async (query: string): Promise<[DogarsSet, string] | un
     return undefined;
   }
 };
+
+export const advancedSearch = async (query: { [key: string]: string }): Promise<[DogarsSet, string] | undefined> => {
+  try {
+
+    const sets = (await Axios.get<DogarsPage>('https://dogars.ga/api/search', { params: query })).data[1];
+    if (sets.length > 0) {
+      const setText = setToString(sets[0]);
+
+      return [sets[0], setText];
+    }
+
+    return undefined;
+  } catch (error) {
+    return undefined;
+  }
+};
