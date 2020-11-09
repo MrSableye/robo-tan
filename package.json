@@ -1,7 +1,8 @@
 {
   "name": "dogars-discord-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord bot for interacting with Dogars.",
+  "repository": "showderp/dogars-discord-bot",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
