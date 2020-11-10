@@ -24,6 +24,6 @@ export const handleSearch = async (message: Message, commandText: string) => {
 };
 
 export const registeredCommand: RegisteredCommand = {
-  commands: ['dt', 'data'],
+  commands: ['search'],
   handler: handleSearch,
 };
