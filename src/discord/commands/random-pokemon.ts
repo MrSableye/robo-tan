@@ -15,7 +15,7 @@ export const handleRandomPokemon = async (message: Message, commandText: string)
   }, {});
 
   if (Object.keys(parameters).length > 0) {
-    const advancedSearchPage = await advancedSearchSets(parameters);
+    const advancedSearchPage = await advancedSearchSets(parameters, true);
 
     if (advancedSearchPage) {
       const [, sets] = advancedSearchPage;

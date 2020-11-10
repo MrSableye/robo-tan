@@ -30,9 +30,15 @@ export const searchSets = async (query: string): Promise<DogarsPage | undefined>
 
 export const advancedSearchSets = async (
   queries: { [key: string]: string },
+  isRandom: boolean = false,
 ): Promise<DogarsPage | undefined> => {
   try {
-    return (await axios.get<DogarsPage>('https://dogars.ga/api/search', { params: queries })).data;
+    const params = { ...queries };
+    if (isRandom) {
+      params.random = 'true';
+    }
+
+    return (await axios.get<DogarsPage>('https://dogars.ga/api/search', { params })).data;
   } catch (error) {
     // TODO: Log error
     return undefined;
