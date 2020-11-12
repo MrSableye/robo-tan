@@ -39,4 +39,16 @@ export const handleRandomPokemon = async (message: Message, commandText: string)
 export const registeredCommand: RegisteredCommand = {
   commands: ['randpoke', 'randompokemon'],
   handler: handleRandomPokemon,
+  help: [
+    {
+      name: '!randpoke',
+      value: 'Displays a random set\nExample: `!randpoke`',
+      inline: false,
+    },
+    {
+      name: '!randpoke <filterName:filterValue>,...',
+      value: 'Displays a random set with the given search filters\nExample: `!randpoke name:fastpoke,species:slowpoke`',
+      inline: false,
+    },
+  ],
 };

@@ -26,4 +26,11 @@ export const handleSearch = async (message: Message, commandText: string) => {
 export const registeredCommand: RegisteredCommand = {
   commands: ['search'],
   handler: handleSearch,
+  help: [
+    {
+      name: '!search <filterName:filterValue>,...',
+      value: 'Displays the first set found when searching given the search filters\nExample: `!search name:fastpoke,species:slowpoke`',
+      inline: false,
+    },
+  ],
 };
