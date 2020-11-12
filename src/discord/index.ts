@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import { registeredCommands } from './commands';
+import { createBattleNotifier } from './notifier';
 
 const commandPrefix = '!'; // TODO: Allow customization of this
 
@@ -18,6 +19,8 @@ export const handleMessage = async (message: Message) => {
       );
     }
   } catch (error) {
-    // TODO: Log error
+    console.log('Error handling Discord message', error);
   }
 };
+
+export { createBattleNotifier };

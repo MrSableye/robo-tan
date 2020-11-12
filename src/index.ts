@@ -1,12 +1,20 @@
-import Discord from 'discord.js';
-import { handleMessage } from './discord';
+import { Client } from 'discord.js';
+import { createBattleNotifier, handleMessage } from './discord';
 
 const token = process.env.TOKEN || '';
+const channelId = process.env.CHANNEL_ID || '';
 
-const discordClient = new Discord.Client();
+const client = new Client();
+let battleNotifierTimeout: NodeJS.Timeout;
 
-discordClient.on('ready', () => {
-  console.log(`Successfully logged in as ${discordClient.user?.tag}`);
+client.on('ready', () => {
+  console.log(`Successfully logged in as ${client.user?.tag}`);
+  battleNotifierTimeout = createBattleNotifier(client, channelId);
 });
-discordClient.on('message', handleMessage);
-discordClient.login(token);
+client.on('message', handleMessage);
+client.on('disconnect', () => {
+  clearInterval(battleNotifierTimeout);
+});
+client.on('error', console.error);
+
+client.login(token);
