@@ -11,7 +11,7 @@ const createUserSearchEmbed = (tripcode: string, discordUsers: DiscordUser[]) =>
 
   if (discordUsers.length > 0) {
     const description = discordUsers.map(
-      (discordUser) => `- ${discordUser.username}#${discordUser.discriminator}`,
+      (discordUser) => `• ${discordUser.username}#${discordUser.discriminator}`,
     ).join('\n');
 
     userSearchEmbed.setDescription(description);

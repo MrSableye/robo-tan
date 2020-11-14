@@ -6,13 +6,13 @@ const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 const createUserSearchEmbed = (username: string, discordUsers: DiscordUser[]) => {
   const userSearchEmbed = new MessageEmbed()
     .setAuthor(
-      `Showdown results for: ${username}`,
-      'https://i.imgur.com/3Ak7F4e.png',
+      `Pokémon Showdown results for: ${username}`,
+      'http://play.pokemonshowdown.com/favicon-16.png',
     );
 
   if (discordUsers.length > 0) {
     const description = discordUsers.map(
-      (discordUser) => `- ${discordUser.username}#${discordUser.discriminator}`,
+      (discordUser) => `• [${discordUser.username}#${discordUser.discriminator}](https://discordapp.com/users/${discordUser.id})`,
     ).join('\n');
 
     userSearchEmbed.setDescription(description);
@@ -41,7 +41,7 @@ export const createPsCommand = (userDatabaseClient: UserDatabaseClient) => {
     help: [
       {
         name: '!ps <username>',
-        value: 'Shows all users associated with the given Showdown username',
+        value: 'Shows all users associated with the given Pokémon Showdown username',
         inline: false,
       },
     ],
