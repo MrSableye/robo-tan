@@ -32,7 +32,7 @@ export const setToString = (set: DogarsSet) => {
 
   if (set.ability) lines.push(`Ability: ${set.ability}`);
   if (set.level && set.level !== 100) lines.push(`Level: ${set.level}`);
-  if (set.shiny === 1) lines.push('Shiny: Yes');
+  if (set.shiny) lines.push('Shiny: Yes');
   if (typeof set.happiness === 'number' && set.happiness < 255 && !Number.isNaN(set.happiness)) {
     lines.push(`Happiness: ${set.happiness}`);
   }

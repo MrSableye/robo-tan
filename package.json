@@ -32,8 +32,10 @@
     }
   },
   "dependencies": {
+    "aws-sdk": "^2.792.0",
     "axios": "^0.21.0",
-    "discord.js": "^12.4.1"
+    "discord.js": "^12.4.1",
+    "ts-psim-client": "^1.1.5"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",

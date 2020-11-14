@@ -1,26 +1,39 @@
 import { Message } from 'discord.js';
-import { registeredCommands } from './commands';
+import { VerificationClient } from '../verification';
+import { UserDatabaseClient } from '../verification/store';
+import { createCommands } from './commands';
 import { createBattleNotifier } from './notifier';
+import { RegisteredCommand } from './types';
 
 const commandPrefix = '!'; // TODO: Allow customization of this
 
 // eslint-disable-next-line import/prefer-default-export
-export const handleMessage = async (message: Message) => {
-  try {
-    const [messagePrefix] = message.content.trim().split(/\s+/);
-    const matchedCommand = registeredCommands.find(
-      (registeredCommand) => registeredCommand.commands.some((command) => messagePrefix === `${commandPrefix}${command}`),
-    );
+export const createMessageHandler = (
+  verificationClient: VerificationClient,
+  userDatabaseClient: UserDatabaseClient,
+) => {
+  const registeredCommands: RegisteredCommand[] = createCommands(
+    verificationClient,
+    userDatabaseClient,
+  );
 
-    if (matchedCommand) {
-      await matchedCommand.handler(
-        message,
-        message.content.trim().substr(messagePrefix.length).trim(),
+  return async (message: Message) => {
+    try {
+      const [messagePrefix] = message.content.trim().split(/\s+/);
+      const matchedCommand = registeredCommands.find(
+        (registeredCommand) => registeredCommand.commands.some((command) => messagePrefix === `${commandPrefix}${command}`),
       );
+
+      if (matchedCommand) {
+        await matchedCommand.handler(
+          message,
+          message.content.trim().substr(messagePrefix.length).trim(),
+        );
+      }
+    } catch (error) {
+      console.log('Error handling Discord message', error);
     }
-  } catch (error) {
-    console.log('Error handling Discord message', error);
-  }
+  };
 };
 
 export { createBattleNotifier };

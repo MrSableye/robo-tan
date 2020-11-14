@@ -13,7 +13,7 @@ export interface DogarsSet {
   gender?: string;
   item?: string;
   ability?: string;
-  shiny?: number;
+  shiny?: boolean;
   level?: number;
   happiness?: number;
   nature?: string;

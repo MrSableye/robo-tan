@@ -18,10 +18,10 @@ const getNormalizedUniqueName = (species: string) => {
 
 const getPokemonImage = (set: DogarsSet, afd: boolean) => {
   if (afd) {
-    return `https://play.pokemonshowdown.com/sprites/afd${(set.shiny === 1 && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.png`;
+    return `https://play.pokemonshowdown.com/sprites/afd${(set.shiny && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.png`;
   }
 
-  return `https://play.pokemonshowdown.com/sprites/xyani${(set.shiny === 1 && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.gif`;
+  return `https://play.pokemonshowdown.com/sprites/xyani${(set.shiny && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.gif`;
 };
 
 const createMissingSetEmbed = () => new MessageEmbed()
