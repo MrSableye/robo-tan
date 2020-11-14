@@ -33,8 +33,8 @@ export const createCommands = (
     dataCommand,
     randomPokemonCommand,
     searchcommand,
-    whoCommand,
     verifyCommand,
+    psCommand,
     tripCommand,
     whoCommand,
   ];
