@@ -14,7 +14,7 @@ export const createVerifyCommand = (verificationClient: VerificationClient) => {
       ChallengeType.SHOWDOWN,
     );
 
-    await message.author.send(createVerificationEmbed(challenge));
+    return message.author.send(createVerificationEmbed(challenge));
   };
 
   return {

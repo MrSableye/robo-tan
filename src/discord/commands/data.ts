@@ -7,12 +7,10 @@ export const handleData = async (message: Message, commandText: string) => {
   if (commandText.match(/^[0-9]+$/)) {
     const setId = parseInt(commandText, 10);
 
-    if (Number.isNaN(setId)) {
-      // TODO: Throw error if this occurs
-    } else {
+    if (!Number.isNaN(setId)) {
       const set = await getSet(setId);
 
-      message.reply(createSetEmbed(set));
+      return message.reply(createSetEmbed(set));
     }
   } else {
     const searchPage = await searchSets(commandText);
@@ -20,11 +18,11 @@ export const handleData = async (message: Message, commandText: string) => {
     if (searchPage) {
       const [, sets] = searchPage;
 
-      message.reply(createSetEmbed(sets[0]));
-    } else {
-      // TODO: Throw error if this occurs
+      return message.reply(createSetEmbed(sets[0]));
     }
   }
+
+  return message.reply(createSetEmbed(undefined));
 };
 
 export const registeredCommand: RegisteredCommand = {

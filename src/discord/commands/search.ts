@@ -6,7 +6,7 @@ import { createSetEmbed } from '../utility';
 export const handleSearch = async (message: Message, commandText: string) => {
   const parameters = commandText.split(',').reduce((currentParameters: { [key: string]: string }, parameter) => {
     if (parameter.indexOf(':') >= 0) {
-      const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim());
+      const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim().toLowerCase());
 
       return { ...currentParameters, [parameterName]: parameterValue };
     }
@@ -19,8 +19,10 @@ export const handleSearch = async (message: Message, commandText: string) => {
   if (advancedSearchPage) {
     const [, sets] = advancedSearchPage;
 
-    message.reply(createSetEmbed(sets[0]));
+    return message.reply(createSetEmbed(sets[0]));
   }
+
+  return message.reply(createSetEmbed(undefined));
 };
 
 export const registeredCommand: RegisteredCommand = {

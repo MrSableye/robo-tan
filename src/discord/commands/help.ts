@@ -8,7 +8,7 @@ export const createHelpCommand = (registeredCommands: RegisteredCommand[]): Regi
       .setTitle('Command help')
       .addFields(registeredCommands.flatMap((registeredCommand) => registeredCommand.help));
 
-    message.reply(helpEmbed);
+    return message.reply(helpEmbed);
   };
 
   return {

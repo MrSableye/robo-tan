@@ -35,10 +35,10 @@ export const createWhoCommand = (userDatabaseClient: UserDatabaseClient) => {
     const user = await userDatabaseClient.getUser(message.author.id);
 
     if (user) {
-      await message.reply(createUserEmbed(message.author, user));
-    } else {
-      await message.reply(createErrorEmbed());
+      return message.reply(createUserEmbed(message.author, user));
     }
+
+    return message.reply(createErrorEmbed());
   };
 
   return {

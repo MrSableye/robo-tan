@@ -1,6 +1,6 @@
 import { Message, EmbedField } from 'discord.js';
 
-export type CommandHandler = (message: Message, commandText: string) => Promise<void>;
+export type CommandHandler = (message: Message, commandText: string) => Promise<Message>;
 
 export interface RegisteredCommand {
   commands: string[],

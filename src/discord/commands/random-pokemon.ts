@@ -6,7 +6,7 @@ import { createSetEmbed } from '../utility';
 export const handleRandomPokemon = async (message: Message, commandText: string) => {
   const parameters = commandText.split(',').reduce((currentParameters: { [key: string]: string }, parameter) => {
     if (parameter.indexOf(':') >= 0) {
-      const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim());
+      const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim().toLowerCase());
 
       return { ...currentParameters, [parameterName]: parameterValue };
     }
@@ -20,7 +20,7 @@ export const handleRandomPokemon = async (message: Message, commandText: string)
     if (advancedSearchPage) {
       const [, sets] = advancedSearchPage;
 
-      message.reply(createSetEmbed(sets[0]));
+      return message.reply(createSetEmbed(sets[0]));
     }
   } else {
     const randomSetId = await getRandomSetId();
@@ -29,11 +29,12 @@ export const handleRandomPokemon = async (message: Message, commandText: string)
       const set = await getSet(randomSetId);
 
       if (set) {
-        message.reply(createSetEmbed(set));
+        return message.reply(createSetEmbed(set));
       }
     }
   }
-  // TOOD: Throw error / send error message if this occurs, shouldn
+
+  return message.reply(createSetEmbed(undefined));
 };
 
 export const registeredCommand: RegisteredCommand = {

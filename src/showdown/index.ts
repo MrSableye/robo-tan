@@ -35,8 +35,8 @@ export const createShowdownVerifier = (
         secret,
         ChallengeType.SHOWDOWN,
         {
-          showdownId: toId(message.user.username),
-          showdownDisplayName: message.user.displayName,
+          showdownId: toId(showdownUser.username),
+          showdownDisplayName: showdownUser.displayName,
         },
       );
 
