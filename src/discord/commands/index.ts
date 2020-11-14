@@ -35,5 +35,7 @@ export const createCommands = (
     searchcommand,
     whoCommand,
     verifyCommand,
+    tripCommand,
+    whoCommand,
   ];
 };
