@@ -12,7 +12,7 @@ const createThreadEmbed = (thread: Post) => {
     );
 
   if (thread.tim && thread.ext) {
-    messageEmbed.setImage(`https://is2.4chan.org/po/${thread.tim}${thread.ext}`);
+    messageEmbed.setImage(`https://is2.4chan.org/vp/${thread.tim}${thread.ext}`);
   }
 
   return messageEmbed;
