@@ -2,7 +2,8 @@ import { registeredCommand as dataCommand } from './data';
 import { registeredCommand as randomPokemonCommand } from './random-pokemon';
 import { registeredCommand as searchcommand } from './search';
 import { createHelpCommand } from './help';
-import { createVerifyCommand } from './verify';
+import { createVerifyPsCommand } from './verify-ps';
+import { createVerifyTripCommand } from './verify-trip';
 import { createWhoCommand } from './who';
 import { createPsCommand } from './ps';
 import { createTripCommand } from './trip';
@@ -14,7 +15,8 @@ export const createCommands = (
   verificationClient: VerificationClient,
   userDatabaseClient: UserDatabaseClient,
 ) => {
-  const verifyCommand = createVerifyCommand(verificationClient);
+  const verifyPsCommand = createVerifyPsCommand(verificationClient);
+  const verifyTripCommand = createVerifyTripCommand(verificationClient);
   const whoCommand = createWhoCommand(userDatabaseClient);
   const psCommand = createPsCommand(userDatabaseClient);
   const tripCommand = createTripCommand(userDatabaseClient);
@@ -22,7 +24,8 @@ export const createCommands = (
     dataCommand,
     randomPokemonCommand,
     searchcommand,
-    verifyCommand,
+    verifyPsCommand,
+    verifyTripCommand,
     psCommand,
     tripCommand,
     whoCommand,
@@ -33,7 +36,8 @@ export const createCommands = (
     dataCommand,
     randomPokemonCommand,
     searchcommand,
-    verifyCommand,
+    verifyPsCommand,
+    verifyTripCommand,
     psCommand,
     tripCommand,
     whoCommand,

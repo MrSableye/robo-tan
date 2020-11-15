@@ -2,7 +2,11 @@ import { Message } from 'discord.js';
 import { VerificationClient } from '../verification';
 import { UserDatabaseClient } from '../verification/store';
 import { createCommands } from './commands';
-import { createBattleNotifier } from './notifier';
+import {
+  createBattlePostHandler,
+  createThreadHandler,
+  createChallengePostHandler,
+} from './notifier';
 import { RegisteredCommand } from './types';
 
 const commandPrefix = '!'; // TODO: Allow customization of this
@@ -36,4 +40,4 @@ export const createMessageHandler = (
   };
 };
 
-export { createBattleNotifier };
+export { createBattlePostHandler, createThreadHandler, createChallengePostHandler };

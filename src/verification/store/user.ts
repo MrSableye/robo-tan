@@ -21,7 +21,7 @@ export type User = DiscordUser
 | (DiscordUser & ShowdownUser & YotsubaUser);
 
 export interface UserDatabaseClient {
-  upsertUser(user: User): Promise<User | undefined>;
+  upsertUser(user: User): Promise<User>;
   getUser(discordId: string): Promise<User | undefined>;
   deleteUser(discordId: string): Promise<boolean>;
   getUsersByShowdownId(showdownId: string): Promise<User[]>;
@@ -44,7 +44,7 @@ export class DynamoDBUserDatabaseClient implements UserDatabaseClient {
     this.configuration = configuration;
   }
 
-  async upsertUser(user: User): Promise<User | undefined> {
+  async upsertUser(user: User): Promise<User> {
     const parameters = {
       TableName: this.configuration.userTableName,
       Item: user,

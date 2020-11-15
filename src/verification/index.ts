@@ -20,7 +20,7 @@ const generateChallenge = (discordId: string, type: ChallengeType) => ({
   secret: Math.random().toString(36).substring(2, 15),
   type,
   discordId,
-  expiryTime: new Date().getTime() + 5 * 60 * 1000,
+  expiryTime: Math.floor((new Date().getTime() + 5 * 60 * 1000) / 1000),
 });
 
 export class DatabaseVerificationClient implements VerificationClient {
@@ -63,7 +63,11 @@ export class DatabaseVerificationClient implements VerificationClient {
         ...userData,
       };
 
-      return this.userDatabaseClient.upsertUser(user);
+      user = await this.userDatabaseClient.upsertUser(user);
+
+      await this.challengeDatabaseClient.deleteChallenge(secret, type);
+
+      return user;
     }
 
     return undefined;

@@ -48,7 +48,5 @@ export const createShowdownVerifier = (
     }
   });
 
-  bot.connect();
-
   return bot;
 };
