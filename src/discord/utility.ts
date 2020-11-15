@@ -1,5 +1,10 @@
-import { MessageEmbed } from 'discord.js';
+import { MessageEmbed, User as DiscordUser } from 'discord.js';
 import { DogarsSet, setToString } from '../dogars';
+import { User } from '../verification/store';
+
+export const createErrorEmbed = (message: string) => new MessageEmbed()
+  .setColor('RED')
+  .setDescription(message);
 
 const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
@@ -24,14 +29,10 @@ const getPokemonImage = (set: DogarsSet, afd: boolean) => {
   return `https://play.pokemonshowdown.com/sprites/xyani${(set.shiny && '-shiny') || ''}/${getNormalizedUniqueName(set.species)}.gif`;
 };
 
-const createMissingSetEmbed = () => new MessageEmbed()
-  .setColor('RED')
-  .setDescription('Set either does not exist or an unknown error occured.');
-
 // eslint-disable-next-line import/prefer-default-export
 export const createSetEmbed = (set?: DogarsSet): MessageEmbed => {
   if (!set) {
-    return createMissingSetEmbed();
+    return createErrorEmbed('Set either does not exist or an unknown error occured.');
   }
 
   const setText = setToString(set);
@@ -69,4 +70,28 @@ export const createSetEmbed = (set?: DogarsSet): MessageEmbed => {
   embed = embed.addField('Set', `\`\`\`${setText}\`\`\``);
 
   return embed;
+};
+
+export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
+  const author = `${discordUser.username}#${discordUser.discriminator}`;
+  const avatar = discordUser.avatarURL() || discordUser.defaultAvatarURL;
+
+  const userEmbed = new MessageEmbed()
+    .setAuthor(author, avatar);
+
+  if ('showdownId' in user) {
+    userEmbed.addField(
+      'Showdown',
+      `[${user.showdownDisplayName}](https://pokemonshowdown.com/users/${user.showdownId})`,
+    );
+  }
+
+  if ('tripcode' in user) {
+    userEmbed.addField(
+      '4chan',
+      user.tripcode,
+    );
+  }
+
+  return userEmbed;
 };

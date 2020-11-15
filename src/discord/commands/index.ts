@@ -4,7 +4,8 @@ import { registeredCommand as searchcommand } from './search';
 import { createHelpCommand } from './help';
 import { createVerifyPsCommand } from './verify-ps';
 import { createVerifyTripCommand } from './verify-trip';
-import { createWhoCommand } from './who';
+import { createWhoAmICommand } from './who-am-i';
+import { createWhoIsCommand } from './who-is';
 import { createPsCommand } from './ps';
 import { createTripCommand } from './trip';
 import { VerificationClient } from '../../verification';
@@ -17,7 +18,8 @@ export const createCommands = (
 ) => {
   const verifyPsCommand = createVerifyPsCommand(verificationClient);
   const verifyTripCommand = createVerifyTripCommand(verificationClient);
-  const whoCommand = createWhoCommand(userDatabaseClient);
+  const whoAmICommand = createWhoAmICommand(userDatabaseClient);
+  const whoIsCommand = createWhoIsCommand(userDatabaseClient);
   const psCommand = createPsCommand(userDatabaseClient);
   const tripCommand = createTripCommand(userDatabaseClient);
   const helpCommand = createHelpCommand([
@@ -28,7 +30,8 @@ export const createCommands = (
     verifyTripCommand,
     psCommand,
     tripCommand,
-    whoCommand,
+    whoAmICommand,
+    whoIsCommand,
   ]);
 
   return [
@@ -40,6 +43,7 @@ export const createCommands = (
     verifyTripCommand,
     psCommand,
     tripCommand,
-    whoCommand,
+    whoAmICommand,
+    whoIsCommand,
   ];
 };

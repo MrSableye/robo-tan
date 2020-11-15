@@ -22,7 +22,7 @@ export const handleData = async (message: Message, commandText: string) => {
     }
   }
 
-  return message.reply(createSetEmbed(undefined));
+  return message.reply(createSetEmbed());
 };
 
 export const registeredCommand: RegisteredCommand = {
