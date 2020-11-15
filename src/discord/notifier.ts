@@ -3,12 +3,20 @@ import { Post } from '../showderp';
 import { VerificationClient } from '../verification';
 import { ChallengeType } from '../verification/store';
 
-const createThreadEmbed = (thread: Post) => new MessageEmbed()
-  .setAuthor(
-    thread.sub || 'New Showderp Thread',
-    'https://i.imgur.com/3Ak7F4e.png',
-    `https://boards.4channel.org/vp/thread/${thread.no}`,
-  );
+const createThreadEmbed = (thread: Post) => {
+  const messageEmbed = new MessageEmbed()
+    .setAuthor(
+      thread.sub || 'New Showderp Thread',
+      'https://i.imgur.com/3Ak7F4e.png',
+      `https://boards.4channel.org/vp/thread/${thread.no}`,
+    );
+
+  if (thread.tim && thread.ext) {
+    messageEmbed.setImage(`https://is2.4chan.org/po/${thread.tim}${thread.ext}`);
+  }
+
+  return messageEmbed;
+};
 
 export const createThreadHandler = (client: Client, channelId: string) => async (thread: Post) => {
   console.time(`Retrieved Discord channel ${channelId}`);

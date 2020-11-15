@@ -15,6 +15,8 @@ export interface Post {
   trip?: string;
   sub?: string;
   com?: string;
+  tim?: number;
+  ext?: string;
 }
 
 export const getCatalog = async (board: string) => {

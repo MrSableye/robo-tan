@@ -12,10 +12,11 @@ export const createWhoIsCommand = (userDatabaseClient: UserDatabaseClient) => {
       discordId = commandText;
     }
 
+    const discordUser = await message.client.users.fetch(discordId);
     const user = await userDatabaseClient.getUser(discordId);
 
     if (user) {
-      return message.reply(createUserEmbed(message.author, user));
+      return message.reply(createUserEmbed(discordUser, user));
     }
 
     return message.reply(createErrorEmbed('User does not have a profile'));
@@ -26,7 +27,7 @@ export const createWhoIsCommand = (userDatabaseClient: UserDatabaseClient) => {
     handler: commandHandler,
     help: [
       {
-        name: '!whoami <user>',
+        name: '!whois <user>',
         value: 'Displays the user profile of the given user',
         inline: false,
       },
