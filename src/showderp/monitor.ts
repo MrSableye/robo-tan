@@ -1,5 +1,10 @@
 import Emittery from 'emittery';
-import { CatalogThread, getCatalog, getThread, Post } from './yotsuba';
+import {
+  CatalogThread,
+  getCatalog,
+  getThread,
+  Post,
+} from './yotsuba';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
 const showdownBattleLinkPattern: RegExp = /(https?:\/\/)?play.pokemonshowdown.com\/battle-([^\s]*)/gi;
@@ -21,7 +26,14 @@ const getCurrentThread = async (): Promise<Post | undefined> => {
       const threadPosts = [thread, ...thread.last_replies];
       const lastPost = threadPosts[threadPosts.length - 1];
 
-      if (!currentThread || (lastPost.no > currentThread.no)) {
+      if (!currentThread) {
+        return thread;
+      }
+
+      const currentThreadPosts = [currentThread, ...currentThread.last_replies];
+      const currentThreadLastPost = currentThreadPosts[currentThreadPosts.length - 1];
+
+      if (lastPost.no > currentThreadLastPost.no) {
         return thread;
       }
     }
