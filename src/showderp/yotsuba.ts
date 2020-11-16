@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 interface CatalogPage {
-  threads: Post[];
+  threads: CatalogThread[];
 }
 
 interface Thread {
@@ -17,6 +17,10 @@ export interface Post {
   com?: string;
   tim?: number;
   ext?: string;
+}
+
+export interface CatalogThread extends Post {
+  last_replies: Post[];
 }
 
 export const getCatalog = async (board: string) => {
