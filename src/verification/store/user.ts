@@ -23,6 +23,8 @@ export type User = DiscordUser
 export interface UserDatabaseClient {
   upsertUser(user: User): Promise<User>;
   getUser(discordId: string): Promise<User | undefined>;
+  deleteShowdownId(discordId: string): Promise<User | undefined>;
+  deleteTripcode(discordId: string): Promise<User | undefined>;
   deleteUser(discordId: string): Promise<boolean>;
   getUsersByShowdownId(showdownId: string): Promise<User[]>;
   getUsersByTripcode(tripcode: string): Promise<User[]>;
@@ -65,6 +67,34 @@ export class DynamoDBUserDatabaseClient implements UserDatabaseClient {
 
     if (response.Item) {
       return response.Item as User;
+    }
+
+    return undefined;
+  }
+
+  async deleteShowdownId(discordId: string): Promise<User | undefined> {
+    const user = await this.getUser(discordId);
+
+    if (user && 'showdownId' in user) {
+      // @ts-ignore
+      delete user.showdownId;
+      // @ts-ignore
+      delete user.showdownDisplayName;
+
+      return this.upsertUser(user);
+    }
+
+    return undefined;
+  }
+
+  async deleteTripcode(discordId: string): Promise<User | undefined> {
+    const user = await this.getUser(discordId);
+
+    if (user && 'tripcode' in user) {
+      // @ts-ignore
+      delete user.tripcode;
+
+      return this.upsertUser(user);
     }
 
     return undefined;

@@ -8,6 +8,8 @@ import { createWhoAmICommand } from './who-am-i';
 import { createWhoIsCommand } from './who-is';
 import { createPsCommand } from './ps';
 import { createTripCommand } from './trip';
+import { createUnverifyPsCommand } from './unverify-ps';
+import { createUnverifyTripCommand } from './unverify-trip';
 import { VerificationClient } from '../../verification';
 import { UserDatabaseClient } from '../../verification/store';
 
@@ -22,12 +24,16 @@ export const createCommands = (
   const whoIsCommand = createWhoIsCommand(userDatabaseClient);
   const psCommand = createPsCommand(userDatabaseClient);
   const tripCommand = createTripCommand(userDatabaseClient);
+  const unverifyPsCommand = createUnverifyPsCommand(userDatabaseClient);
+  const unverifyTripCommand = createUnverifyTripCommand(userDatabaseClient);
   const helpCommand = createHelpCommand([
     dataCommand,
     randomPokemonCommand,
     searchcommand,
     verifyPsCommand,
     verifyTripCommand,
+    unverifyPsCommand,
+    unverifyTripCommand,
     psCommand,
     tripCommand,
     whoAmICommand,
@@ -41,6 +47,8 @@ export const createCommands = (
     searchcommand,
     verifyPsCommand,
     verifyTripCommand,
+    unverifyPsCommand,
+    unverifyTripCommand,
     psCommand,
     tripCommand,
     whoAmICommand,
