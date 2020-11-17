@@ -7,34 +7,37 @@ const findDiscordUser = async (message: Message, commandText: string) => {
     return message.mentions.users.first();
   }
 
-  // Attempt to resolve as a Discord id first
-  const discordUser = await message.client.users.fetch(commandText);
+  if (commandText.match(/^[0-9]*$/)) {
+    const discordUser = await message.client.users.fetch(commandText);
 
-  if (!discordUser) {
-    if (message.guild) {
-      const guildMembers = await message.guild.members.fetch();
-
-      let searchResult = guildMembers.find((guildMember) => {
-        const usernameAndDisciminator = `${guildMember.user.username}#${guildMember.user.discriminator}`;
-
-        return commandText === usernameAndDisciminator;
-      });
-
-      if (!searchResult) {
-        searchResult = guildMembers.find((guildMember) => {
-          const nickname = guildMember.nickname || guildMember.user.username;
-
-          return nickname.includes(commandText);
-        });
-      }
-
-      if (searchResult) {
-        return searchResult.user;
-      }
+    if (discordUser) {
+      return discordUser;
     }
   }
 
-  return discordUser || undefined;
+  if (message.guild) {
+    const guildMembers = await message.guild.members.fetch();
+
+    let searchResult = guildMembers.find((guildMember) => {
+      const usernameAndDisciminator = `${guildMember.user.username}#${guildMember.user.discriminator}`;
+
+      return commandText === usernameAndDisciminator;
+    });
+
+    if (!searchResult) {
+      searchResult = guildMembers.find((guildMember) => {
+        const nickname = guildMember.nickname || guildMember.user.username;
+
+        return nickname.includes(commandText);
+      });
+    }
+
+    if (searchResult) {
+      return searchResult.user;
+    }
+  }
+
+  return undefined;
 };
 
 // eslint-disable-next-line import/prefer-default-export
