@@ -2,21 +2,52 @@ import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
 import { UserDatabaseClient } from '../../verification/store';
 
+const findDiscordUser = async (message: Message, commandText: string) => {
+  if (message.mentions.users.size > 0) {
+    return message.mentions.users.first();
+  }
+
+  // Attempt to resolve as a Discord id first
+  const discordUser = await message.client.users.fetch(commandText);
+
+  if (!discordUser) {
+    if (message.guild) {
+      const guildMembers = await message.guild.members.fetch();
+
+      let searchResult = guildMembers.find((guildMember) => {
+        const usernameAndDisciminator = `${guildMember.user.username}#${guildMember.user.discriminator}`;
+
+        return commandText === usernameAndDisciminator;
+      });
+
+      if (!searchResult) {
+        searchResult = guildMembers.find((guildMember) => {
+          const nickname = guildMember.nickname || guildMember.user.username;
+
+          return nickname.includes(commandText);
+        });
+      }
+
+      if (searchResult) {
+        return searchResult.user;
+      }
+    }
+  }
+
+  return discordUser || undefined;
+};
+
 // eslint-disable-next-line import/prefer-default-export
 export const createWhoIsCommand = (userDatabaseClient: UserDatabaseClient) => {
   const commandHandler = async (message: Message, commandText: string) => {
-    let discordId: string;
-    if (message.mentions.users.size > 0) {
-      discordId = message.mentions.users.first()?.id || '';
-    } else {
-      discordId = commandText;
-    }
+    const discordUser = await findDiscordUser(message, commandText);
 
-    const discordUser = await message.client.users.fetch(discordId);
-    const user = await userDatabaseClient.getUser(discordId);
+    if (discordUser) {
+      const user = await userDatabaseClient.getUser(discordUser.id);
 
-    if (user) {
-      return message.reply(createUserEmbed(discordUser, user));
+      if (user) {
+        return message.reply(createUserEmbed(discordUser, user));
+      }
     }
 
     return message.reply(createErrorEmbed('User does not have a profile'));
