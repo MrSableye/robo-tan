@@ -1,6 +1,5 @@
 import { Message } from 'discord.js';
-import { VerificationClient } from '../verification';
-import { UserDatabaseClient } from '../verification/store';
+import { VerificationClient, UserDatabaseClient } from '../verification';
 import { createCommands } from './commands';
 import {
   createBattlePostHandler,

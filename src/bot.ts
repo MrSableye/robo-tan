@@ -1,6 +1,11 @@
 import Discord from 'discord.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import {
+  DynamoDBConfigurationStore,
+  InMemoryConfigurationStore,
+  OrderedFailThroughStore,
+} from './configuration';
+import {
   createBattlePostHandler,
   createThreadHandler,
   createMessageHandler,
@@ -8,13 +13,14 @@ import {
 } from './discord';
 import { createShowderpMonitor } from './showderp';
 import { createShowdownVerifier } from './showdown';
-import { DatabaseVerificationClient, VerificationClient } from './verification';
 import {
   ChallengeDatabaseClient,
   DynamoDBChallengeDatabaseClient,
   DynamoDBUserDatabaseClient,
+  DatabaseVerificationClient,
   UserDatabaseClient,
-} from './verification/store';
+  VerificationClient,
+} from './verification';
 
 interface BotSettings {
   discordSettings: {
@@ -22,6 +28,7 @@ interface BotSettings {
     channelId: string;
   };
   databaseSettings: {
+    configurationTableName: string;
     challengeTableName: string;
     userTableName: string;
     showdownIdIndexName: string;
@@ -59,9 +66,22 @@ export const createBot = async (settings: BotSettings) => {
     userDatabaseClient,
   );
 
+  const dynamoDBConfigurationStore = new DynamoDBConfigurationStore(
+    dynamoDBClient,
+    settings.databaseSettings.configurationTableName,
+  );
+  const inMemoryConfigurationStore = new InMemoryConfigurationStore();
+  const configurationStore = new OrderedFailThroughStore([
+    inMemoryConfigurationStore,
+    dynamoDBConfigurationStore,
+  ]);
+
   const discordClient = new Discord.Client();
 
-  const [showderpMonitorTimeout, showderpMonitor] = createShowderpMonitor(15 * 1000);
+  const [showderpMonitorTimeout, showderpMonitor] = await createShowderpMonitor(
+    15 * 1000,
+    configurationStore,
+  );
   const showdownVerifier = createShowdownVerifier(settings.showdownSettings, verificationClient);
 
   discordClient.on('ready', () => {

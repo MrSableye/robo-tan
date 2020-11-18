@@ -6,6 +6,7 @@ createBot({
     channelId: process.env.CHANNEL_ID || '',
   },
   databaseSettings: {
+    configurationTableName: 'Configuration',
     userTableName: 'Users',
     challengeTableName: 'Challenges',
     showdownIdIndexName: 'showdownId-index',

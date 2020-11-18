@@ -1,6 +1,5 @@
 import { Client } from 'ts-psim-client';
-import { VerificationClient } from '../verification';
-import { ChallengeType } from '../verification/store';
+import { ChallengeType, VerificationClient } from '../verification';
 
 const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
@@ -12,19 +11,18 @@ interface ShowdownVerifierConfiguration {
 
 // eslint-disable-next-line import/prefer-default-export
 export const createShowdownVerifier = (
-  configuration: ShowdownVerifierConfiguration,
+  showdownVerifierConfiguration: ShowdownVerifierConfiguration,
   verificationClient: VerificationClient,
 ) => {
   const bot = new Client({});
-  const { username } = configuration;
-  const { password } = configuration;
+  const { username, password, avatar } = showdownVerifierConfiguration;
 
   bot.onReady.subscribe((client) => {
     client.login(username, password, true);
   });
 
   bot.onLogin.subscribe((client) => {
-    client.setAvatar(configuration.avatar || 'scientistf');
+    client.setAvatar(avatar || 'scientistf');
   });
 
   bot.onPrivateMessage.subscribe(async (showdownUser, message) => {

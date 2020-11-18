@@ -1,11 +1,17 @@
 import {
+  DynamoDBChallengeDatabaseClient,
+  DynamoDBChallengeDatabaseConfiguration,
   Challenge,
   ChallengeType,
   ChallengeDatabaseClient,
+} from './challenge-store';
+import {
+  DynamoDBUserDatabaseClient,
+  DynamoDBUserDatabaseConfiguration,
   User,
   UserData,
   UserDatabaseClient,
-} from './store';
+} from './user-store';
 
 export interface VerificationClient {
   createChallenge(discordId: string, challengeType: ChallengeType): Promise<Challenge>;
@@ -73,3 +79,16 @@ export class DatabaseVerificationClient implements VerificationClient {
     return undefined;
   }
 }
+
+export {
+  DynamoDBChallengeDatabaseClient,
+  DynamoDBChallengeDatabaseConfiguration,
+  Challenge,
+  ChallengeType,
+  ChallengeDatabaseClient,
+  DynamoDBUserDatabaseClient,
+  DynamoDBUserDatabaseConfiguration,
+  User,
+  UserData,
+  UserDatabaseClient,
+};

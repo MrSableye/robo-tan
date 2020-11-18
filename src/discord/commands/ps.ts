@@ -1,5 +1,5 @@
 import { User as DiscordUser, Message, MessageEmbed } from 'discord.js';
-import { UserDatabaseClient } from '../../verification/store';
+import { UserDatabaseClient } from '../../verification';
 
 const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 

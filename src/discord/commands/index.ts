@@ -10,8 +10,7 @@ import { createPsCommand } from './ps';
 import { createTripCommand } from './trip';
 import { createUnverifyPsCommand } from './unverify-ps';
 import { createUnverifyTripCommand } from './unverify-trip';
-import { VerificationClient } from '../../verification';
-import { UserDatabaseClient } from '../../verification/store';
+import { VerificationClient, UserDatabaseClient } from '../../verification';
 
 // eslint-disable-next-line import/prefer-default-export
 export const createCommands = (

@@ -1,5 +1,5 @@
 import { User as DiscordUser, Message, MessageEmbed } from 'discord.js';
-import { UserDatabaseClient } from '../../verification/store';
+import { UserDatabaseClient } from '../../verification';
 
 const createUserSearchEmbed = (tripcode: string, discordUsers: DiscordUser[]) => {
   const userSearchEmbed = new MessageEmbed()

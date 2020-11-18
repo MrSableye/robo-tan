@@ -5,6 +5,7 @@ import {
   getThread,
   Post,
 } from './yotsuba';
+import { ConfigurationStore } from '../configuration';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
 const showdownBattleLinkPattern: RegExp = /(https?:\/\/)?play.pokemonshowdown.com\/battle-([^\s]*)/gi;
@@ -88,23 +89,29 @@ export type ShowdownMonitor = Emittery.Typed<{
   challengePosts: Post[],
 }>;
 
-export const createShowderpMonitor = (frequency: number): [NodeJS.Timeout, ShowdownMonitor] => {
+export const createShowderpMonitor = async (
+  frequency: number,
+  configurationStore: ConfigurationStore,
+): Promise<[NodeJS.Timeout, ShowdownMonitor]> => {
   const showdownEventEmitter: ShowdownMonitor = new Emittery.Typed<{
     thread: Post,
     battlePost: [Post, Post, string],
     challengePosts: Post[],
   }>();
 
-  let lastExecutedTime: number | undefined;
-  let currentThread: Post | undefined;
+  let lastExecutedTime: number | undefined = await configurationStore.getGlobalConfigurationValue('lastExecutedTime');
+  let currentThread: number | undefined = await configurationStore.getGlobalConfigurationValue('currentThread');
   let currentBattlePost: [Post, string] | undefined;
 
   const timeout = setInterval(async () => {
     const thread = await getCurrentThread();
 
-    if (thread && (thread.no !== currentThread?.no)) {
-      currentThread = thread;
-      showdownEventEmitter.emit('thread', currentThread);
+    if (thread && (thread.no !== currentThread)) {
+      currentThread = await configurationStore.setGlobalConfigurationValue(
+        'currentThread',
+        thread.no,
+      );
+      showdownEventEmitter.emit('thread', thread);
     }
 
     if (thread) {
@@ -120,7 +127,10 @@ export const createShowderpMonitor = (frequency: number): [NodeJS.Timeout, Showd
         showdownEventEmitter.emit('challengePosts', newChallengePosts);
       }
 
-      lastExecutedTime = threadPosts[threadPosts.length - 1].time;
+      lastExecutedTime = await configurationStore.setGlobalConfigurationValue(
+        'lastExecutedTime',
+        threadPosts[threadPosts.length - 1].time,
+      );
     }
   }, frequency);
 

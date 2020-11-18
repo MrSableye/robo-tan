@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
-import { UserDatabaseClient } from '../../verification/store';
+import { UserDatabaseClient } from '../../verification';
 
 const findDiscordUser = async (message: Message, commandText: string) => {
   if (message.mentions.users.size > 0) {

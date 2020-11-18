@@ -1,6 +1,6 @@
 import { MessageEmbed, User as DiscordUser } from 'discord.js';
 import { DogarsSet, setToString } from '../dogars';
-import { User } from '../verification/store';
+import { User } from '../verification';
 
 export const createErrorEmbed = (message: string) => new MessageEmbed()
   .setColor('RED')

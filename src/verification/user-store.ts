@@ -65,11 +65,7 @@ export class DynamoDBUserDatabaseClient implements UserDatabaseClient {
 
     const response = await this.client.get(parameters).promise();
 
-    if (response.Item) {
-      return response.Item as User;
-    }
-
-    return undefined;
+    return response.Item as User;
   }
 
   async deleteShowdownId(discordId: string): Promise<User | undefined> {
