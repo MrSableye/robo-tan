@@ -11,10 +11,18 @@ const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
 const showdownBattleLinkPattern: RegExp = /(https?:\/\/)?play.pokemonshowdown.com\/battle-([^\s]*)/gi;
 
 const isShowderpThread = (post: Post) => {
+  const comment = (post.com || '')
+    .replace(/<wbr>/gm, '')
+    .replace(/<(?:.|\n)*?>/gm, ' ')
+    .toLowerCase();
+  const subject = (post.sub || '')
+    .replace(/<wbr>/gm, '')
+    .replace(/<(?:.|\n)*?>/gm, ' ')
+    .toLowerCase();
   const doesCommentContainKeyword = showderpKeywords
-    .some((keyword) => post.com && post.com.includes(keyword));
+    .some((keyword) => comment.includes(keyword));
   const doesSubjectContainKeyword = showderpKeywords
-    .some((keyword) => post.sub && post.sub.includes(keyword));
+    .some((keyword) => subject.includes(keyword));
 
   return doesCommentContainKeyword || doesSubjectContainKeyword;
 };
