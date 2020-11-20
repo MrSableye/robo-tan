@@ -21,6 +21,7 @@ export interface Post {
 
 export interface CatalogThread extends Post {
   last_replies: Post[];
+  bumplimit?: number;
 }
 
 export const getCatalog = async (board: string) => {

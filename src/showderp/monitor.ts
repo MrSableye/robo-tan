@@ -31,7 +31,7 @@ const getCurrentThread = async (): Promise<Post | undefined> => {
   const catalog = await getCatalog('vp');
 
   return catalog.reduce((currentThread: CatalogThread | undefined, thread) => {
-    if (isShowderpThread(thread)) {
+    if (isShowderpThread(thread) && thread.bumplimit !== 1) {
       const threadPosts = [thread, ...thread.last_replies];
       const lastPost = threadPosts[threadPosts.length - 1];
 
