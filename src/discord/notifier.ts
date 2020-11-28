@@ -35,23 +35,29 @@ export const createThreadHandler = (client: Client, channelId: string) => async 
   }
 };
 
-const createBattlePostEmbed = (thread: Post, post: Post, battleLink: string) => new MessageEmbed()
-  .setDescription(battleLink)
-  .setURL(battleLink)
+const createBattlePostEmbed = (thread: Post, post: Post, battleRoom: string) => new MessageEmbed()
   .setThumbnail('http://play.pokemonshowdown.com/favicon-128.png')
   .setTimestamp(post.time * 1000)
   .setAuthor(
     `${post.name || ''} ${post.trip || ''}`,
     'https://i.imgur.com/3Ak7F4e.png',
     `https://boards.4channel.org/vp/thread/${thread.no}#p${post.no}`,
-  );
+  )
+  .addFields({
+    name: 'Dogars Link (preferred)',
+    value: `[https://play.dogars.ga/${battleRoom}](https://play.dogars.ga/${battleRoom})`,
+  })
+  .addFields({
+    name: 'Showdown Link (not recommended)',
+    value: `[https://play.pokemonshowdown.com/${battleRoom}](https://play.pokemonshowdown.com/${battleRoom})`,
+  });
 
 type BattlePostEvent = [Post, Post, string];
 
 export const createBattlePostHandler = (
   client: Client, channelId: string,
 ) => async (battlePostEvent: BattlePostEvent) => {
-  const [thread, battlePost, battleLink] = battlePostEvent;
+  const [thread, battlePost, battleRoom] = battlePostEvent;
 
   console.time(`Retrieved Discord channel ${channelId}`);
   const channel = await client.channels.fetch(channelId);
@@ -61,7 +67,7 @@ export const createBattlePostHandler = (
     const battlePostEmbed = createBattlePostEmbed(
       thread,
       battlePost,
-      battleLink,
+      battleRoom,
     );
 
     console.time(`Sent message to channel ${channelId}`);

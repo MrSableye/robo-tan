@@ -8,7 +8,10 @@ import {
 import { ConfigurationStore } from '../configuration';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
-const showdownBattleLinkPattern: RegExp = /(https?:\/\/)?play.pokemonshowdown.com\/battle-([^\s]*)/gi;
+const battleLinkPatterns: RegExp[] = [
+  /(https?:\/\/)?play.pokemonshowdown.com\/(?<room>battle-([^\s]*))/gi,
+  /(https?:\/\/)?play.dogars.ga\/(?<room>battle-([^\s]*))/gi,
+];
 
 const isShowderpThread = (post: Post) => {
   const comment = (post.com || '')
@@ -68,18 +71,18 @@ const scanThread = (
             .replace(/<wbr>/gm, '')
             .replace(/<(?:.|\n)*?>/gm, ' ');
 
-          const matches = comment.match(showdownBattleLinkPattern);
+          battleLinkPatterns.forEach((battleLinkPattern) => {
+            const matches = battleLinkPattern.exec(comment);
 
-          if (matches && matches.length > 0) {
-            const link = matches.pop() as string;
-
-            /* eslint-disable no-param-reassign */
-            scanThreadResult.newBattlePost = [
-              post,
-              link[0] === 'h' ? link : `https://${link}`,
-            ];
-            /* eslint-enable no-param-reassign */
-          }
+            if (matches?.groups?.['room']) {
+              /* eslint-disable no-param-reassign */
+              scanThreadResult.newBattlePost = [
+                post,
+                matches?.groups?.['room'],
+              ];
+              /* eslint-enable no-param-reassign */
+            }
+          });
         }
       }
 
