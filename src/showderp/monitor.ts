@@ -1,6 +1,5 @@
 import Emittery from 'emittery';
 import {
-  CatalogThread,
   getCatalog,
   getThread,
   Post,
@@ -30,75 +29,21 @@ const isShowderpThread = (post: Post) => {
   return doesCommentContainKeyword || doesSubjectContainKeyword;
 };
 
-const getCurrentThread = async (): Promise<Post | undefined> => {
+const getCurrentThreads = async (): Promise<Post[]> => {
   const catalog = await getCatalog('vp');
 
-  return catalog.reduce((currentThread: CatalogThread | undefined, thread) => {
-    if (isShowderpThread(thread) && thread.bumplimit !== 1) {
-      const threadPosts = [thread, ...thread.last_replies];
-      const lastPost = threadPosts[threadPosts.length - 1];
-
-      if (!currentThread) {
-        return thread;
-      }
-
-      const currentThreadPosts = [currentThread, ...currentThread.last_replies];
-      const currentThreadLastPost = currentThreadPosts[currentThreadPosts.length - 1];
-
-      if (lastPost.no > currentThreadLastPost.no) {
-        return thread;
-      }
-    }
-
-    return currentThread;
-  }, undefined);
+  return catalog
+    .filter((thread) => isShowderpThread(thread));
 };
-
-interface ScanThreadResult {
-  newBattlePost?: [Post, string];
-  newChallengePosts: Post[];
-}
-
-const scanThread = (
-  thread: Post[],
-  lastExecutedTime?: number,
-): ScanThreadResult => thread.reverse()
-  .reduce((scanThreadResult: ScanThreadResult, post) => {
-    if (!lastExecutedTime || (post.time > lastExecutedTime)) {
-      if (!scanThreadResult.newBattlePost) {
-        if (post.trip && post.com) {
-          const comment = post.com
-            .replace(/<wbr>/gm, '')
-            .replace(/<(?:.|\n)*?>/gm, ' ');
-
-          battleLinkPatterns.forEach((battleLinkPattern) => {
-            const matches = battleLinkPattern.exec(comment);
-
-            if (matches?.groups?.['room']) {
-              /* eslint-disable no-param-reassign */
-              scanThreadResult.newBattlePost = [
-                post,
-                matches?.groups?.['room'],
-              ];
-              /* eslint-enable no-param-reassign */
-            }
-          });
-        }
-      }
-
-      if (post.trip && post.name && post.name.startsWith('VerifyUser')) {
-        scanThreadResult.newChallengePosts.push(post);
-      }
-    }
-
-    return scanThreadResult;
-  }, { newChallengePosts: [] });
 
 export type ShowdownMonitor = Emittery.Typed<{
   thread: Post,
   battlePost: [Post, Post, string],
   challengePosts: Post[],
 }>;
+
+type ThreadPostsPair = [Post, Post[]];
+type ThreadPostPair = [Post, Post];
 
 export const createShowderpMonitor = async (
   frequency: number,
@@ -111,38 +56,71 @@ export const createShowderpMonitor = async (
   }>();
 
   let lastExecutedTime: number | undefined = await configurationStore.getGlobalConfigurationValue('lastExecutedTime');
-  let currentThread: number | undefined = await configurationStore.getGlobalConfigurationValue('currentThread');
-  let currentBattlePost: [Post, string] | undefined;
+  let currentThreadNo: number | undefined = await configurationStore.getGlobalConfigurationValue('currentThread');
 
   const timeout = setInterval(async () => {
-    const thread = await getCurrentThread();
+    const currentThreads = (await getCurrentThreads()).sort((a, b) => a.no - b.no);
 
-    if (thread && (thread.no !== currentThread)) {
-      currentThread = await configurationStore.setGlobalConfigurationValue(
-        'currentThread',
-        thread.no,
-      );
-      showdownEventEmitter.emit('thread', thread);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const currentThread of currentThreads) {
+      if (!currentThreadNo || currentThread.no > currentThreadNo) {
+        // eslint-disable-next-line no-await-in-loop
+        currentThreadNo = await configurationStore.setGlobalConfigurationValue(
+          'currentThread',
+          currentThread.no,
+        );
+
+        showdownEventEmitter.emit('thread', currentThread);
+      }
     }
 
-    if (thread) {
-      const threadPosts = await getThread('vp', thread.no);
-      const { newBattlePost, newChallengePosts } = scanThread([...threadPosts], lastExecutedTime);
+    const showderpPosts = (await Promise.all(currentThreads.map(async (currentThread) => {
+      const posts = await getThread('vp', currentThread.no);
 
-      if (newBattlePost && (newBattlePost[0].no !== currentBattlePost?.[0].no)) {
-        currentBattlePost = newBattlePost;
-        showdownEventEmitter.emit('battlePost', [thread, ...currentBattlePost]);
+      return [currentThread, posts] as ThreadPostsPair;
+    })))
+      .reduce((threadPostPairs: ThreadPostPair[], [thread, posts]) => {
+        const mappedPosts = posts.map((post) => ([thread, post] as ThreadPostPair));
+        const result = [...threadPostPairs, ...mappedPosts];
+
+        return result;
+      }, [])
+      .sort((a, b) => a[1].no - b[1].no);
+
+    let latestExecutionTime = lastExecutedTime || -1;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [showderpThread, showderpPost] of showderpPosts) {
+      latestExecutionTime = Math.max(latestExecutionTime, showderpPost.time);
+
+      if (!lastExecutedTime || (showderpPost.time > lastExecutedTime)) {
+        if (showderpPost.trip && showderpPost.com) {
+          const comment = showderpPost.com
+            .replace(/<wbr>/gm, '')
+            .replace(/<(?:.|\n)*?>/gm, ' ');
+
+          battleLinkPatterns.forEach((battleLinkPattern) => {
+            const matches = battleLinkPattern.exec(comment);
+            if (matches?.groups?.['room']) {
+              showdownEventEmitter.emit('battlePost', [
+                showderpThread,
+                showderpPost,
+                matches?.groups?.['room'],
+              ]);
+            }
+          });
+        }
+
+        if (showderpPost.trip && showderpPost.name && showderpPost.name.startsWith('VerifyUser')) {
+          showdownEventEmitter.emit('challengePosts', [showderpPost]);
+        }
       }
-
-      if (newChallengePosts.length > 0) {
-        showdownEventEmitter.emit('challengePosts', newChallengePosts);
-      }
-
-      lastExecutedTime = await configurationStore.setGlobalConfigurationValue(
-        'lastExecutedTime',
-        threadPosts[threadPosts.length - 1].time,
-      );
     }
+
+    lastExecutedTime = await configurationStore.setGlobalConfigurationValue(
+      'lastExecutedTime',
+      latestExecutionTime,
+    );
   }, frequency);
 
   return [timeout, showdownEventEmitter];
