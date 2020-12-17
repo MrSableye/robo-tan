@@ -52,7 +52,7 @@ const createBattlePostEmbed = (thread: Post, post: Post, battleRoom: string) => 
     value: `[https://play.pokemonshowdown.com/${battleRoom}](https://play.pokemonshowdown.com/${battleRoom})`,
   });
 
-type BattlePostEvent = [Post, Post, string];
+export type BattlePostEvent = [Post, Post, string]; // TODO: Export this in a better place
 
 export const createBattlePostHandler = (
   client: Client, channelId: string,

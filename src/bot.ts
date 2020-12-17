@@ -21,6 +21,7 @@ import {
   UserDatabaseClient,
   VerificationClient,
 } from './verification';
+import { createBattleMonitor } from './showdown/battle-monitor';
 
 interface BotSettings {
   discordSettings: {
@@ -84,6 +85,11 @@ export const createBot = async (settings: BotSettings) => {
   );
   const showdownClient = createShowdownClient(verificationClient);
 
+  const {
+    battlePostHandler,
+    unsubscribe: unsubscribeBattleMonitor,
+  } = createBattleMonitor(showdownClient);
+
   discordClient.on('ready', async () => {
     console.log(`Successfully logged in as ${discordClient.user?.tag}`);
 
@@ -110,13 +116,7 @@ export const createBot = async (settings: BotSettings) => {
 
     showderpMonitor.on(
       'battlePost',
-      async (battlePostEvent) => {
-        const [,, battleRoom] = battlePostEvent;
-
-        console.log(`Monitoring battle: ${battleRoom}`);
-
-        await showdownClient.send(`|/join ${battleRoom}`);
-      },
+      battlePostHandler,
     );
   });
 
@@ -126,6 +126,7 @@ export const createBot = async (settings: BotSettings) => {
 
   discordClient.on('disconnect', () => {
     clearInterval(showderpMonitorTimeout);
+    unsubscribeBattleMonitor();
     showdownClient.disconnect();
   });
 
