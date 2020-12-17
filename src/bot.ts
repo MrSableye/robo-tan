@@ -12,7 +12,7 @@ import {
   createChallengePostHandler,
 } from './discord';
 import { createShowderpMonitor } from './showderp';
-import { createShowdownVerifier } from './showdown';
+import { createShowdownClient } from './showdown';
 import {
   ChallengeDatabaseClient,
   DynamoDBChallengeDatabaseClient,
@@ -82,7 +82,7 @@ export const createBot = async (settings: BotSettings) => {
     15 * 1000,
     configurationStore,
   );
-  const showdownVerifier = createShowdownVerifier(verificationClient);
+  const showdownClient = createShowdownClient(verificationClient);
 
   discordClient.on('ready', async () => {
     console.log(`Successfully logged in as ${discordClient.user?.tag}`);
@@ -102,10 +102,19 @@ export const createBot = async (settings: BotSettings) => {
       createChallengePostHandler(discordClient, verificationClient),
     );
 
-    await showdownVerifier.connect();
-    await showdownVerifier.login(
+    await showdownClient.connect();
+    await showdownClient.login(
       settings.showdownSettings.username,
       settings.showdownSettings.password,
+    );
+
+    showderpMonitor.on(
+      'battlePost',
+      async (battlePostEvent) => {
+        const [,, battleRoom] = battlePostEvent;
+
+        await showdownClient.send(`|/join ${battleRoom}`);
+      },
     );
   });
 
@@ -115,7 +124,7 @@ export const createBot = async (settings: BotSettings) => {
 
   discordClient.on('disconnect', () => {
     clearInterval(showderpMonitorTimeout);
-    showdownVerifier.disconnect();
+    showdownClient.disconnect();
   });
 
   discordClient.login(settings.discordSettings.token);
