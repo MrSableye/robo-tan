@@ -82,9 +82,9 @@ export const createBot = async (settings: BotSettings) => {
     15 * 1000,
     configurationStore,
   );
-  const showdownVerifier = createShowdownVerifier(settings.showdownSettings, verificationClient);
+  const showdownVerifier = createShowdownVerifier(verificationClient);
 
-  discordClient.on('ready', () => {
+  discordClient.on('ready', async () => {
     console.log(`Successfully logged in as ${discordClient.user?.tag}`);
 
     showderpMonitor.on(
@@ -102,7 +102,11 @@ export const createBot = async (settings: BotSettings) => {
       createChallengePostHandler(discordClient, verificationClient),
     );
 
-    showdownVerifier.connect();
+    await showdownVerifier.connect();
+    await showdownVerifier.login(
+      settings.showdownSettings.username,
+      settings.showdownSettings.password,
+    );
   });
 
   discordClient.on('message', createMessageHandler(verificationClient, userDatabaseClient));

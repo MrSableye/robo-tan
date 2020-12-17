@@ -1,4 +1,4 @@
-import { Client } from 'ts-psim-client';
+import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { ChallengeType, VerificationClient } from '../verification';
 
 const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -11,40 +11,31 @@ interface ShowdownVerifierConfiguration {
 
 // eslint-disable-next-line import/prefer-default-export
 export const createShowdownVerifier = (
-  showdownVerifierConfiguration: ShowdownVerifierConfiguration,
   verificationClient: VerificationClient,
 ) => {
-  const bot = new Client({});
-  const { username, password, avatar } = showdownVerifierConfiguration;
+  const showdownClient = new PrettyClient({});
 
-  bot.onReady.subscribe((client) => {
-    client.login(username, password, true);
-  });
-
-  bot.onLogin.subscribe((client) => {
-    client.setAvatar(avatar || 'scientistf');
-  });
-
-  bot.onPrivateMessage.subscribe(async (showdownUser, message) => {
-    if (message.text.startsWith('#verify')) {
-      const secret = message.text.substr(7).trim();
+  showdownClient.eventEmitter.on('pm', async (pmEvent) => {
+    const pm = pmEvent.event[0];
+    if (pm.message.startsWith('#verify')) {
+      const secret = pm.message.substr(7).trim();
 
       const user = await verificationClient.verifyChallengeAndUpdateUser(
         secret,
         ChallengeType.SHOWDOWN,
         {
-          showdownId: toId(showdownUser.username),
-          showdownDisplayName: showdownUser.displayName,
+          showdownId: toId(pm.sender.username),
+          showdownDisplayName: pm.sender.username,
         },
       );
 
       if (user) {
-        await message.reply('Successfully verified');
+        await showdownClient.send(`|/pm ${pm.sender.username}, Successfully verified`);
       } else {
-        await message.reply('Invalid challenge, please check your message or try again');
+        await showdownClient.send(`|/pm ${pm.sender.username}, Invalid challenge, please check your message or try again`);
       }
     }
   });
 
-  return bot;
+  return showdownClient;
 };
