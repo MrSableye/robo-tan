@@ -113,6 +113,8 @@ export const createBot = async (settings: BotSettings) => {
       async (battlePostEvent) => {
         const [,, battleRoom] = battlePostEvent;
 
+        console.log(`Monitoring battle: ${battleRoom}`);
+
         await showdownClient.send(`|/join ${battleRoom}`);
       },
     );

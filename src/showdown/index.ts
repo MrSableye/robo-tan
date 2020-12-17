@@ -33,10 +33,12 @@ export const createShowdownClient = (
   });
 
   showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+    console.log(`Initializing room: ${initializeRoomEvent.room}`);
     rooms[initializeRoomEvent.room] = new Set();
   });
 
   showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
+    console.log(`Deinitializing room: ${deinitializeRoomEvent.room}`);
     delete rooms[deinitializeRoomEvent.room];
   });
 
