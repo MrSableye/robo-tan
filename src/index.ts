@@ -9,6 +9,7 @@ createBot({
     configurationTableName: 'Configuration',
     userTableName: 'Users',
     challengeTableName: 'Challenges',
+    battleTableName: 'Battles',
     showdownIdIndexName: 'showdownId-index',
     tripcodeIndexName: 'tripcode-index',
   },

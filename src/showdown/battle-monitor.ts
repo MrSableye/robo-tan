@@ -3,40 +3,89 @@ import Emittery from 'emittery';
 import { BattlePostEvent } from '../discord/notifier';
 import { toId } from './utility';
 
+interface Player {
+  isChamp: boolean;
+}
+
+interface Room {
+  name: string;
+  start: number;
+  participants: {
+    [showdownId: string]: Player;
+  };
+}
+
+interface Rooms {
+  [roomName: string]: Room;
+}
+
+type BattleLifecycleEvents = {
+  start: { roomName: string },
+  end: { roomName: string, room: Room },
+};
+
 // eslint-disable-next-line import/prefer-default-export
 export const createBattleMonitor = (client: PrettyClient) => {
   const { eventEmitter } = client;
-  const rooms: Record<string, Set<string>> = {};
+  const rooms: Rooms = {};
   const unsubscribeFunctions: Emittery.UnsubscribeFn[] = [];
+  const battleEventEmitter = new Emittery.Typed<BattleLifecycleEvents>();
 
   unsubscribeFunctions.push(eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-    rooms[initializeRoomEvent.room] = new Set();
+    rooms[initializeRoomEvent.room] = {
+      name: initializeRoomEvent.room,
+      start: new Date().getTime(),
+      participants: {},
+    };
+    battleEventEmitter.emit('start', { roomName: initializeRoomEvent.room });
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-    delete rooms[deinitializeRoomEvent.room];
+    const room = rooms[deinitializeRoomEvent.room];
+
+    if (room) {
+      battleEventEmitter.emit('end', {
+        roomName: deinitializeRoomEvent.room,
+        room,
+      });
+      delete rooms[deinitializeRoomEvent.room];
+    }
+  }));
+
+  unsubscribeFunctions.push(eventEmitter.on('player', (playerEvent) => {
+    const room = rooms[playerEvent.room];
+    if (room) {
+      const { username } = playerEvent.event[0].user;
+      const showdownId = toId(username);
+
+      room.participants[showdownId] = {
+        ...room.participants[showdownId],
+        isChamp: true,
+      };
+    }
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('join', (joinEvent) => {
-    if (rooms[joinEvent.room]) {
+    const room = rooms[joinEvent.room];
+    if (room) {
       const { username } = joinEvent.event[0].user;
+      const showdownId = toId(username);
 
-      rooms[joinEvent.room].add(toId(username));
+      room.participants[showdownId] = {
+        ...room.participants[showdownId],
+        isChamp: room.participants?.[showdownId].isChamp || false,
+      };
     }
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('win', (winEvent) => {
     if (rooms[winEvent.room]) {
-      console.log(winEvent.room, rooms[winEvent.room]);
-
       client.send(`${winEvent.room}|/leave`);
     }
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('tie', (tieEvent) => {
     if (rooms[tieEvent.room]) {
-      console.log(tieEvent.room, rooms[tieEvent.room]);
-
       client.send(`${tieEvent.room}|/leave`);
     }
   }));
@@ -83,5 +132,6 @@ export const createBattleMonitor = (client: PrettyClient) => {
       unsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
     },
     battlePostHandler,
+    battleEventEmitter,
   };
 };

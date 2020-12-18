@@ -22,6 +22,7 @@ import {
   VerificationClient,
 } from './verification';
 import { createBattleMonitor } from './showdown/battle-monitor';
+import { BattleDatabaseClient, DynamoDBBattleDatabaseClient } from './verification/battle-store';
 
 interface BotSettings {
   discordSettings: {
@@ -32,6 +33,7 @@ interface BotSettings {
     configurationTableName: string;
     challengeTableName: string;
     userTableName: string;
+    battleTableName: string;
     showdownIdIndexName: string;
     tripcodeIndexName: string;
   };
@@ -67,6 +69,13 @@ export const createBot = async (settings: BotSettings) => {
     userDatabaseClient,
   );
 
+  const battleDatabaseClient: BattleDatabaseClient = new DynamoDBBattleDatabaseClient(
+    dynamoDBClient,
+    {
+      battleTableName: settings.databaseSettings.battleTableName,
+    },
+  );
+
   const dynamoDBConfigurationStore = new DynamoDBConfigurationStore(
     dynamoDBClient,
     settings.databaseSettings.configurationTableName,
@@ -86,9 +95,29 @@ export const createBot = async (settings: BotSettings) => {
   const showdownClient = createShowdownClient(verificationClient);
 
   const {
+    battleEventEmitter,
     battlePostHandler,
     unsubscribe: unsubscribeBattleMonitor,
   } = createBattleMonitor(showdownClient);
+
+  battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
+  battleEventEmitter.on('end', async ({ roomName, room }) => {
+    try {
+      await Promise.all(
+        Object.entries(room.participants)
+          .map(([showdownId, { isChamp }]) => battleDatabaseClient.upsertBattle({
+            showdownId,
+            battleRoom: roomName,
+            isChamp,
+            battleStartTime: room.start,
+          })),
+      );
+
+      console.log(`Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
+    } catch (error) {
+      console.log(`Error storing participants in battle ${roomName}: ${error}`);
+    }
+  });
 
   discordClient.on('ready', async () => {
     console.log(`Successfully logged in as ${discordClient.user?.tag}`);
