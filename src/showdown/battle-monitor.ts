@@ -73,7 +73,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
 
       room.participants[showdownId] = {
         ...room.participants[showdownId],
-        isChamp: room.participants?.[showdownId].isChamp || false,
+        isChamp: room.participants[showdownId]?.isChamp || false,
       };
     }
   }));
