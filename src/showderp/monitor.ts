@@ -100,14 +100,17 @@ export const createShowderpMonitor = async (
             .replace(/<(?:.|\n)*?>/gm, ' ');
 
           battleLinkPatterns.forEach((battleLinkPattern) => {
-            const matches = battleLinkPattern.exec(comment);
-            if (matches?.groups?.['room']) {
-              showdownEventEmitter.emit('battlePost', [
-                showderpThread,
-                showderpPost,
-                matches?.groups?.['room'],
-              ]);
-            }
+            const matches = [...comment.matchAll(battleLinkPattern)];
+
+            matches.forEach((match) => {
+              if (match?.groups?.['room']) {
+                showdownEventEmitter.emit('battlePost', [
+                  showderpThread,
+                  showderpPost,
+                  match?.groups?.['room'],
+                ]);
+              }
+            });
           });
         }
 
