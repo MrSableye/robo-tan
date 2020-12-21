@@ -3,6 +3,8 @@ import { Message, MessageEmbed } from 'discord.js';
 import moment from 'moment';
 import { ConfigurationStore } from '../../configuration';
 import { BotSettings } from '../../settings';
+import { UserDatabaseClient } from '../../verification';
+import { createErrorEmbed } from '../utility';
 
 const refreshCooldown = 30 * 60 * 1000; // TODO: Make this configurable
 
@@ -15,15 +17,14 @@ const createCooldownEmbed = (cooldownElapsed: number) => {
     .duration(refreshCooldown - cooldownElapsed)
     .humanize();
 
-  return new MessageEmbed()
-    .setColor('RED')
-    .setDescription(`Refresh is on cooldown. You will be able to refresh again in ${durationString}`);
+  return createErrorEmbed(`Refresh is on cooldown. You will be able to refresh again in ${durationString}`);
 };
 
 // eslint-disable-next-line import/prefer-default-export
 export const createRefreshCommand = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,
+  userDatabaseClient: UserDatabaseClient,
 ) => {
   const handleRefresh = async (message: Message) => {
     const { author } = message;
@@ -34,24 +35,30 @@ export const createRefreshCommand = (
     const currentTime = new Date().getTime();
 
     if (!lastRefresh || (currentTime - lastRefresh > refreshCooldown)) {
-      const stepFunctionClient = new StepFunctions();
+      const user = await userDatabaseClient.getUser(author.id);
 
-      stepFunctionClient.startExecution({
-        stateMachineArn: settings.awsSettings.roleStepFunctionArn,
-        input: JSON.stringify({ users: [author.id] }),
-      }, (error) => {
-        if (error) {
-          console.error('Error executing step function', error);
-        }
-      });
+      if (user) {
+        const stepFunctionClient = new StepFunctions();
 
-      await configurationStore.setUserConfigurationValue(
-        author.id,
-        'lastRefresh',
-        currentTime,
-      );
+        stepFunctionClient.startExecution({
+          stateMachineArn: settings.awsSettings.roleStepFunctionArn,
+          input: JSON.stringify({ users: [user] }),
+        }, (error) => {
+          if (error) {
+            console.error('Error executing step function', error);
+          }
+        });
 
-      return message.reply(createSuccessEmbed('Successfully started the refresh process'));
+        await configurationStore.setUserConfigurationValue(
+          author.id,
+          'lastRefresh',
+          currentTime,
+        );
+
+        return message.reply(createSuccessEmbed('Successfully started the refresh process'));
+      }
+
+      return message.reply(createErrorEmbed('User does not have a profile'));
     }
 
     return message.reply(createCooldownEmbed(currentTime - lastRefresh));
