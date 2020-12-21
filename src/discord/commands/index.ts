@@ -30,7 +30,7 @@ export const createCommands = (
   const tripCommand = createTripCommand(userDatabaseClient);
   const unverifyPsCommand = createUnverifyPsCommand(userDatabaseClient);
   const unverifyTripCommand = createUnverifyTripCommand(userDatabaseClient);
-  const refreshCommand = createRefreshCommand(settings, configurationStore);
+  const refreshCommand = createRefreshCommand(settings, configurationStore, userDatabaseClient);
   const helpCommand = createHelpCommand([
     dataCommand,
     randomPokemonCommand,
