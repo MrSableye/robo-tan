@@ -1,23 +1,10 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 
-interface ShowdownUser {
-  showdownIds: string[];
-}
-
-interface YotsubaUser {
-  tripcode: string;
-}
-
-interface DiscordUser {
+export interface User {
   discordId: string;
+  showdownIds?: string[];
+  tripcode?: string;
 }
-
-export type UserData = ShowdownUser | YotsubaUser;
-
-export type User = DiscordUser
-| (DiscordUser & ShowdownUser)
-| (DiscordUser & YotsubaUser)
-| (DiscordUser & ShowdownUser & YotsubaUser);
 
 export interface UserDatabaseClient {
   upsertUser(user: User): Promise<User>;

@@ -9,7 +9,6 @@ import {
   DynamoDBUserDatabaseClient,
   DynamoDBUserDatabaseConfiguration,
   User,
-  UserData,
   UserDatabaseClient,
 } from './user-store';
 
@@ -18,7 +17,7 @@ export interface VerificationClient {
   verifyChallengeAndUpdateUser(
     secret: string,
     type: ChallengeType,
-    userData: UserData,
+    successfulUserModifier: (user: User) => User,
   ): Promise<User | undefined>;
 }
 
@@ -51,7 +50,7 @@ export class DatabaseVerificationClient implements VerificationClient {
   async verifyChallengeAndUpdateUser(
     secret: string,
     type: ChallengeType,
-    userData: UserData,
+    successfulUserModifier: (user: User) => User,
   ): Promise<User | undefined> {
     const challenge = await this.challengeDatabaseClient.getChallenge(secret, type);
 
@@ -64,10 +63,7 @@ export class DatabaseVerificationClient implements VerificationClient {
         };
       }
 
-      user = {
-        ...user,
-        ...userData,
-      };
+      user = successfulUserModifier(user);
 
       user = await this.userDatabaseClient.upsertUser(user);
 
@@ -89,6 +85,5 @@ export {
   DynamoDBUserDatabaseClient,
   DynamoDBUserDatabaseConfiguration,
   User,
-  UserData,
   UserDatabaseClient,
 };

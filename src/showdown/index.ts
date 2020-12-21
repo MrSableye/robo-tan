@@ -13,12 +13,30 @@ export const createShowdownClient = (
     const pm = pmEvent.event[0];
     if (pm.message.startsWith('#verify')) {
       const secret = pm.message.substr(7).trim();
+      const newShowdownId = toId(pm.sender.username);
 
       const user = await verificationClient.verifyChallengeAndUpdateUser(
         secret,
         ChallengeType.SHOWDOWN,
-        {
-          showdownIds: [toId(pm.sender.username)],
+        (userToUpdate) => {
+          if (userToUpdate.showdownIds) {
+            if (!userToUpdate.showdownIds.some((showdownId) => showdownId === newShowdownId)) {
+              return {
+                ...userToUpdate,
+                showdownIds: [
+                  newShowdownId,
+                  ...userToUpdate.showdownIds,
+                ].slice(0, 5), // TODO: Make this configurable
+              };
+            }
+          } else {
+            return {
+              ...userToUpdate,
+              showdownIds: [newShowdownId],
+            };
+          }
+
+          return userToUpdate;
         },
       );
 

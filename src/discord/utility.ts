@@ -79,19 +79,19 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
   const userEmbed = new MessageEmbed()
     .setAuthor(author, avatar);
 
-  if ('showdownIds' in user) {
+  if (user.showdownIds) {
     userEmbed.addField(
       'Showdown',
       user.showdownIds.map(
         (showdownId) => `[${showdownId}](https://pokemonshowdown.com/users/${showdownId})`,
-      ).join(','),
+      ).join(', '),
     );
   }
 
-  if ('tripcode' in user) {
+  if (user.tripcode) {
     userEmbed.addField(
       '4chan',
-      user.tripcode,
+      `[${user.tripcode}](https://archive.nyafuu.org/vp/search/tripcode/${user.tripcode})`,
     );
   }
 

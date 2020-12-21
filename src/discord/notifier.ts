@@ -88,7 +88,10 @@ export const createChallengePostHandler = (
     const user = await verificationClient.verifyChallengeAndUpdateUser(
       (challengePost.name || '').substr(10),
       ChallengeType.YOTSUBA,
-      { tripcode: challengePost.trip || '' },
+      (userToUpdate) => ({
+        ...userToUpdate,
+        tripcode: challengePost.trip || '',
+      }),
     );
 
     if (user) {
