@@ -10,9 +10,9 @@ const createSuccessEmbed = (message: string) => new MessageEmbed()
   .setColor('GREEN')
   .setDescription(message);
 
-const createCooldownEmbed = (cooldownRemaining: number) => {
+const createCooldownEmbed = (cooldownElapsed: number) => {
   const durationString = moment
-    .duration(cooldownRemaining)
+    .duration(refreshCooldown - cooldownElapsed)
     .humanize();
 
   return new MessageEmbed()
@@ -39,6 +39,10 @@ export const createRefreshCommand = (
       stepFunctionClient.startExecution({
         stateMachineArn: settings.awsSettings.roleStepFunctionArn,
         input: JSON.stringify({ users: [author.id] }),
+      }, (error) => {
+        if (error) {
+          console.error('Error executing step function', error);
+        }
       });
 
       await configurationStore.setUserConfigurationValue(
