@@ -6,6 +6,8 @@ import {
   GlobalConfigurationKey,
   GuildConfiguration,
   GuildConfigurationKey,
+  UserConfiguration,
+  UserConfigurationKey,
 } from './types';
 
 export class OrderedFailThroughStore implements ConfigurationStore {
@@ -70,6 +72,37 @@ export class OrderedFailThroughStore implements ConfigurationStore {
   ): Promise<GuildConfiguration[T]> {
     await Promise.all(this.configurationStores.map(
       (configurationStore) => configurationStore.setGuildConfigurationValue(guild, key, value),
+    ));
+
+    return value;
+  }
+
+  async getUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+  ): Promise<UserConfiguration[T] | undefined> {
+    let result: GuildConfiguration[T] | undefined;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const configurationStore of this.configurationStores) {
+      // eslint-disable-next-line no-await-in-loop
+      result = await configurationStore.getUserConfigurationValue(user, key);
+
+      if (result) {
+        return result;
+      }
+    }
+
+    return result;
+  }
+
+  async setUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+    value: UserConfiguration[T],
+  ): Promise<UserConfiguration[T]> {
+    await Promise.all(this.configurationStores.map(
+      (configurationStore) => configurationStore.setUserConfigurationValue(user, key, value),
     ));
 
     return value;

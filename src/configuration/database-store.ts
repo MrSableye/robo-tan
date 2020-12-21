@@ -5,6 +5,8 @@ import {
   GlobalConfigurationKey,
   GuildConfiguration,
   GuildConfigurationKey,
+  UserConfiguration,
+  UserConfigurationKey,
 } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -75,6 +77,39 @@ export class DynamoDBConfigurationStore implements ConfigurationStore {
     const parameters = {
       TableName: this.tableName,
       Item: { key: `GUILD:${guild};KEY:${key}`, value },
+    };
+
+    await this.client.put(parameters).promise();
+
+    return value;
+  }
+
+  async getUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+  ): Promise<UserConfiguration[T] | undefined> {
+    const parameters = {
+      TableName: this.tableName,
+      Key: { key: `USER:${user};KEY:${key}` },
+    };
+
+    const response = await this.client.get(parameters).promise();
+
+    if (response.Item) {
+      return response.Item.value as UserConfiguration[T];
+    }
+
+    return undefined;
+  }
+
+  async setUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+    value: UserConfiguration[T],
+  ): Promise<UserConfiguration[T]> {
+    const parameters = {
+      TableName: this.tableName,
+      Item: { key: `USER:${user};KEY:${key}`, value },
     };
 
     await this.client.put(parameters).promise();

@@ -82,7 +82,9 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
   if ('showdownIds' in user) {
     userEmbed.addField(
       'Showdown',
-      `[${user.showdownIds[0]}](https://pokemonshowdown.com/users/${user.showdownIds[0]})`,
+      user.showdownIds.map(
+        (showdownId) => `[${showdownId}](https://pokemonshowdown.com/users/${showdownId})`,
+      ).join(','),
     );
   }
 

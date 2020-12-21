@@ -5,6 +5,8 @@ import {
   GlobalConfigurationKey,
   GuildConfiguration,
   GuildConfigurationKey,
+  UserConfiguration,
+  UserConfigurationKey,
 } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -42,6 +44,22 @@ export class InMemoryConfigurationStore implements ConfigurationStore {
     value: GuildConfiguration[T],
   ): Promise<GuildConfiguration[T]> {
     this.cache.set(`GUILD:${guild};KEY:${key}`, value);
+    return Promise.resolve(value);
+  }
+
+  getUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+  ): Promise<UserConfiguration[T] | undefined> {
+    return Promise.resolve(this.cache.get(`USER:${user};KEY:${key}`));
+  }
+
+  setUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+    value: UserConfiguration[T],
+  ): Promise<UserConfiguration[T]> {
+    this.cache.set(`USER:${user};KEY:${key}`, value);
     return Promise.resolve(value);
   }
 }

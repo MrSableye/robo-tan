@@ -11,6 +11,12 @@ export interface GuildConfiguration {
 
 export type GuildConfigurationKey = keyof GuildConfiguration;
 
+export interface UserConfiguration {
+
+}
+
+export type UserConfigurationKey = keyof UserConfiguration;
+
 export interface ConfigurationStore {
   getGlobalConfigurationValue<T extends GlobalConfigurationKey>(
     key: T,
@@ -28,4 +34,13 @@ export interface ConfigurationStore {
     key: T,
     value: GuildConfiguration[T],
   ): Promise<GuildConfiguration[T]>;
+  getUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+  ): Promise<UserConfiguration[T] | undefined>;
+  setUserConfigurationValue<T extends UserConfigurationKey>(
+    user: string,
+    key: T,
+    value: UserConfiguration[T],
+  ): Promise<UserConfiguration[T]>;
 }
