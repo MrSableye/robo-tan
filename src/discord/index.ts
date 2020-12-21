@@ -1,4 +1,6 @@
 import { Message } from 'discord.js';
+import { ConfigurationStore } from '../configuration';
+import { BotSettings } from '../settings';
 import { VerificationClient, UserDatabaseClient } from '../verification';
 import { createCommands } from './commands';
 import {
@@ -12,10 +14,14 @@ const commandPrefix = '!'; // TODO: Allow customization of this
 
 // eslint-disable-next-line import/prefer-default-export
 export const createMessageHandler = (
+  settings: BotSettings,
+  configurationStore: ConfigurationStore,
   verificationClient: VerificationClient,
   userDatabaseClient: UserDatabaseClient,
 ) => {
   const registeredCommands: RegisteredCommand[] = createCommands(
+    settings,
+    configurationStore,
     verificationClient,
     userDatabaseClient,
   );

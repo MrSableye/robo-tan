@@ -23,26 +23,7 @@ import {
 } from './verification';
 import { createBattleMonitor } from './showdown/battle-monitor';
 import { BattleDatabaseClient, DynamoDBBattleDatabaseClient } from './verification/battle-store';
-
-interface BotSettings {
-  discordSettings: {
-    token: string;
-    channelId: string;
-  };
-  databaseSettings: {
-    configurationTableName: string;
-    challengeTableName: string;
-    userTableName: string;
-    battleTableName: string;
-    showdownIdIndexName: string;
-    tripcodeIndexName: string;
-  };
-  showdownSettings: {
-    username: string;
-    password: string;
-    avatar?: string;
-  };
-}
+import { BotSettings } from './settings';
 
 // eslint-disable-next-line import/prefer-default-export
 export const createBot = async (settings: BotSettings) => {
@@ -149,7 +130,12 @@ export const createBot = async (settings: BotSettings) => {
     );
   });
 
-  discordClient.on('message', createMessageHandler(verificationClient, userDatabaseClient));
+  discordClient.on('message', createMessageHandler(
+    settings,
+    configurationStore,
+    verificationClient,
+    userDatabaseClient,
+  ));
 
   discordClient.on('error', console.error);
 

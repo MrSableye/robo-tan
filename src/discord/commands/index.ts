@@ -11,9 +11,14 @@ import { createTripCommand } from './trip';
 import { createUnverifyPsCommand } from './unverify-ps';
 import { createUnverifyTripCommand } from './unverify-trip';
 import { VerificationClient, UserDatabaseClient } from '../../verification';
+import { createRefreshCommand } from './refresh';
+import { ConfigurationStore } from '../../configuration';
+import { BotSettings } from '../../settings';
 
 // eslint-disable-next-line import/prefer-default-export
 export const createCommands = (
+  settings: BotSettings,
+  configurationStore: ConfigurationStore,
   verificationClient: VerificationClient,
   userDatabaseClient: UserDatabaseClient,
 ) => {
@@ -25,6 +30,7 @@ export const createCommands = (
   const tripCommand = createTripCommand(userDatabaseClient);
   const unverifyPsCommand = createUnverifyPsCommand(userDatabaseClient);
   const unverifyTripCommand = createUnverifyTripCommand(userDatabaseClient);
+  const refreshCommand = createRefreshCommand(settings, configurationStore);
   const helpCommand = createHelpCommand([
     dataCommand,
     randomPokemonCommand,
@@ -37,6 +43,7 @@ export const createCommands = (
     tripCommand,
     whoAmICommand,
     whoIsCommand,
+    refreshCommand,
   ]);
 
   return [
@@ -52,5 +59,6 @@ export const createCommands = (
     tripCommand,
     whoAmICommand,
     whoIsCommand,
+    refreshCommand,
   ];
 };

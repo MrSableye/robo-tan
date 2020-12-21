@@ -17,4 +17,7 @@ createBot({
     username: process.env.SHOWDOWN_USERNAME || '',
     password: process.env.SHOWDOWN_PASSWORD || '',
   },
+  awsSettings: {
+    roleStepFunctionArn: process.env.ROLE_STEP_FUNCTION_ARN || '',
+  },
 });
