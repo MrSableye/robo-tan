@@ -18,8 +18,7 @@ export const createShowdownClient = (
         secret,
         ChallengeType.SHOWDOWN,
         {
-          showdownId: toId(pm.sender.username),
-          showdownDisplayName: pm.sender.username,
+          showdownIds: [toId(pm.sender.username)],
         },
       );
 

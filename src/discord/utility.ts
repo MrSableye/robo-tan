@@ -79,10 +79,10 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
   const userEmbed = new MessageEmbed()
     .setAuthor(author, avatar);
 
-  if ('showdownId' in user) {
+  if ('showdownIds' in user) {
     userEmbed.addField(
       'Showdown',
-      `[${user.showdownDisplayName}](https://pokemonshowdown.com/users/${user.showdownId})`,
+      `[${user.showdownIds[0]}](https://pokemonshowdown.com/users/${user.showdownIds[0]})`,
     );
   }
 

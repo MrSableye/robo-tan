@@ -1,8 +1,7 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 interface ShowdownUser {
-  showdownId: string;
-  showdownDisplayName: string;
+  showdownIds: string[];
 }
 
 interface YotsubaUser {
