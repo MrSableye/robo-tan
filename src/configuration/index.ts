@@ -81,7 +81,7 @@ export class OrderedFailThroughStore implements ConfigurationStore {
     user: string,
     key: T,
   ): Promise<UserConfiguration[T] | undefined> {
-    let result: GuildConfiguration[T] | undefined;
+    let result: UserConfiguration[T] | undefined;
 
     // eslint-disable-next-line no-restricted-syntax
     for (const configurationStore of this.configurationStores) {

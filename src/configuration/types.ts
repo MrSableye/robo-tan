@@ -12,7 +12,7 @@ export interface GuildConfiguration {
 export type GuildConfigurationKey = keyof GuildConfiguration;
 
 export interface UserConfiguration {
-
+  lastRefresh: number;
 }
 
 export type UserConfigurationKey = keyof UserConfiguration;
