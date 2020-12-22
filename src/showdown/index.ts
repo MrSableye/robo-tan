@@ -7,7 +7,10 @@ const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 export const createShowdownClient = (
   verificationClient: VerificationClient,
 ) => {
-  const showdownClient = new PrettyClient({});
+  const showdownClient = new PrettyClient({
+    debug: true,
+    debugPrefix: '[SHOWDOWN CLIENT]',
+  });
 
   showdownClient.eventEmitter.on('pm', async (pmEvent) => {
     const pm = pmEvent.event[0];
