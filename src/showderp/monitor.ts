@@ -8,8 +8,8 @@ import { ConfigurationStore } from '../configuration';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
 const battleLinkPatterns: RegExp[] = [
-  /(https?:\/\/)?play.pokemonshowdown.com\/(?<room>battle-([A-Za-z0-9-]+))/gi,
-  /(https?:\/\/)?play.dogars.ga\/(?<room>battle-([A-Za-z0-9-]+))/gi,
+  /(https?:\/\/)?play.pokemonshowdown.com\/(?<room>battle-([0-9]+)(-[A-Za-z0-9]?))/gi,
+  /(https?:\/\/)?play.dogars.ga\/(?<room>battle-([0-9]+)(-[A-Za-z0-9]?))/gi,
 ];
 
 const isShowderpThread = (post: Post) => {
