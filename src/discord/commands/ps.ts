@@ -1,7 +1,6 @@
 import { User as DiscordUser, Message, MessageEmbed } from 'discord.js';
+import { toId } from '../../showdown/utility';
 import { UserDatabaseClient } from '../../verification';
-
-const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
 const createUserSearchEmbed = (username: string, discordUsers: DiscordUser[]) => {
   const userSearchEmbed = new MessageEmbed()
@@ -23,7 +22,6 @@ const createUserSearchEmbed = (username: string, discordUsers: DiscordUser[]) =>
   return userSearchEmbed;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const createPsCommand = (userDatabaseClient: UserDatabaseClient) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const username = commandText;

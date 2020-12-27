@@ -1,9 +1,7 @@
 import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { ChallengeType, VerificationClient } from '../verification';
+import { toId } from './utility';
 
-const toId = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
-
-// eslint-disable-next-line import/prefer-default-export
 export const createShowdownClient = (
   verificationClient: VerificationClient,
 ) => {
