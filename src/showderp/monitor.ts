@@ -61,10 +61,8 @@ export const createShowderpMonitor = async (
   const timeout = setInterval(async () => {
     const currentThreads = (await getCurrentThreads()).sort((a, b) => a.no - b.no);
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const currentThread of currentThreads) {
+    await Promise.all(currentThreads.map(async (currentThread) => {
       if (!currentThreadNo || currentThread.no > currentThreadNo) {
-        // eslint-disable-next-line no-await-in-loop
         currentThreadNo = await configurationStore.setGlobalConfigurationValue(
           'currentThread',
           currentThread.no,
@@ -72,7 +70,7 @@ export const createShowderpMonitor = async (
 
         showdownEventEmitter.emit('thread', currentThread);
       }
-    }
+    }));
 
     const showderpPosts = (await Promise.all(currentThreads.map(async (currentThread) => {
       const posts = await getThread('vp', currentThread.no);
@@ -89,8 +87,7 @@ export const createShowderpMonitor = async (
 
     let latestExecutionTime = lastExecutedTime || -1;
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [showderpThread, showderpPost] of showderpPosts) {
+    showderpPosts.forEach(([showderpThread, showderpPost]) => {
       latestExecutionTime = Math.max(latestExecutionTime, showderpPost.time);
 
       if (!lastExecutedTime || (showderpPost.time > lastExecutedTime)) {
@@ -127,7 +124,7 @@ export const createShowderpMonitor = async (
           showdownEventEmitter.emit('challengePosts', [showderpPost]);
         }
       }
-    }
+    });
 
     lastExecutedTime = await configurationStore.setGlobalConfigurationValue(
       'lastExecutedTime',
