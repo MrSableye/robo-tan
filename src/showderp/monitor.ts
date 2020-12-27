@@ -100,10 +100,10 @@ export const createShowderpMonitor = async (
             const matches = [...comment.matchAll(battleLinkPattern)];
 
             const rooms = matches.reduce((currentRooms: { [key: string]: boolean }, match) => {
-              if (match?.groups?.['room']) {
+              if (match?.groups?.room) {
                 return {
                   ...currentRooms,
-                  [match?.groups?.['room']]: true,
+                  [match?.groups?.room]: true,
                 };
               }
 
