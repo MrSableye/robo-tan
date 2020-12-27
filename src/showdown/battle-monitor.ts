@@ -24,7 +24,6 @@ type BattleLifecycleEvents = {
   end: { roomName: string, room: Room },
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const createBattleMonitor = (client: PrettyClient) => {
   const { eventEmitter } = client;
   const rooms: Rooms = {};

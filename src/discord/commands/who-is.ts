@@ -40,7 +40,6 @@ const findDiscordUser = async (message: Message, commandText: string) => {
   return undefined;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const createWhoIsCommand = (userDatabaseClient: UserDatabaseClient) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const discordUser = await findDiscordUser(message, commandText);

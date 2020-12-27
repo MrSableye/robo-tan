@@ -20,7 +20,6 @@ const createCooldownEmbed = (cooldownElapsed: number) => {
   return createErrorEmbed(`Refresh is on cooldown. You will be able to refresh again in ${durationString}`);
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const createRefreshCommand = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,

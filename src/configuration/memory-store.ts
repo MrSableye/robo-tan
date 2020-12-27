@@ -9,7 +9,6 @@ import {
   UserConfigurationKey,
 } from './types';
 
-// eslint-disable-next-line import/prefer-default-export
 export class InMemoryConfigurationStore implements ConfigurationStore {
   cache: Cache;
 

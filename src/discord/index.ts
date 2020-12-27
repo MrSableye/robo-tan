@@ -12,7 +12,6 @@ import { RegisteredCommand } from './types';
 
 const commandPrefix = '!'; // TODO: Allow customization of this
 
-// eslint-disable-next-line import/prefer-default-export
 export const createMessageHandler = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,

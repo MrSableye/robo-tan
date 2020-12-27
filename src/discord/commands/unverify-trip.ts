@@ -2,7 +2,6 @@ import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
 import { UserDatabaseClient } from '../../verification';
 
-// eslint-disable-next-line import/prefer-default-export
 export const createUnverifyTripCommand = (userDatabaseClient: UserDatabaseClient) => {
   const commandHandler = async (message: Message) => {
     const user = await userDatabaseClient.deleteTripcode(message.author.id);

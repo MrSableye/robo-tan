@@ -18,7 +18,6 @@ const statsToString = (stats: Stats, filteredValue: number) => {
   return statsString === '' ? undefined : statsString;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const setToString = (set: DogarsSet) => {
   const lines = [];
 

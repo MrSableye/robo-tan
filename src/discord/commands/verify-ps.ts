@@ -5,7 +5,6 @@ const createVerificationEmbed = (challenge: Challenge) => new MessageEmbed()
   .setDescription('In order to associate your Pokémon Showdown account with your Discord account, you will have to send a secret message to `Robo-tan` on Pokémon Showdown.')
   .addField('Message', `\`#verify ${challenge.secret}\``);
 
-// eslint-disable-next-line import/prefer-default-export
 export const createVerifyPsCommand = (verificationClient: VerificationClient) => {
   const commandHandler = async (message: Message) => {
     const challenge = await verificationClient.createChallenge(

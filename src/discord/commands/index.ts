@@ -15,7 +15,6 @@ import { createRefreshCommand } from './refresh';
 import { ConfigurationStore } from '../../configuration';
 import { BotSettings } from '../../settings';
 
-// eslint-disable-next-line import/prefer-default-export
 export const createCommands = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,

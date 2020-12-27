@@ -22,7 +22,6 @@ const createUserSearchEmbed = (tripcode: string, discordUsers: DiscordUser[]) =>
   return userSearchEmbed;
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const createTripCommand = (userDatabaseClient: UserDatabaseClient) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const tripcode = commandText;

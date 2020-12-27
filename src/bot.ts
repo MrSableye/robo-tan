@@ -25,7 +25,6 @@ import { createBattleMonitor } from './showdown/battle-monitor';
 import { BattleDatabaseClient, DynamoDBBattleDatabaseClient } from './verification/battle-store';
 import { BotSettings } from './settings';
 
-// eslint-disable-next-line import/prefer-default-export
 export const createBot = async (settings: BotSettings) => {
   const dynamoDBClient = new DynamoDB.DocumentClient();
 
