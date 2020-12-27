@@ -8,7 +8,9 @@ export const handleSearch = async (message: Message, commandText: string) => {
     if (parameter.indexOf(':') >= 0) {
       const [parameterName, parameterValue] = parameter.trim().split(':').map((value) => value.trim().toLowerCase());
 
-      return { ...currentParameters, [parameterName]: parameterValue };
+      if (parameterName && parameterValue) {
+        return { ...currentParameters, [parameterName]: parameterValue };
+      }
     }
 
     return currentParameters;

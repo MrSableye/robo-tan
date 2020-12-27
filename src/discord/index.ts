@@ -32,7 +32,7 @@ export const createMessageHandler = (
         (registeredCommand) => registeredCommand.commands.some((command) => messagePrefix === `${commandPrefix}${command}`),
       );
 
-      if (matchedCommand) {
+      if (matchedCommand && messagePrefix) {
         await matchedCommand.handler(
           message,
           message.content.trim().substr(messagePrefix.length).trim(),
