@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
-import { UserDatabaseClient } from '../../verification';
+import { UserStore } from '../../store/user';
 
-export const createUnverifyTripCommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createUnverifyTripCommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message) => {
-    const user = await userDatabaseClient.deleteTripcode(message.author.id);
+    const user = await userStore.deleteTripcode(message.author.id);
 
     if (user) {
       const userEmbed = createUserEmbed(message.author, user);

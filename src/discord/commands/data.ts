@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import { getSet, searchSets } from '../../dogars';
-import { RegisteredCommand } from '../types';
 import { createSetEmbed } from '../utility';
+import { RegisteredCommand } from '../types';
+import { getSet, searchSets } from '../../dogars';
 
 export const handleData = async (message: Message, commandText: string) => {
   if (commandText.match(/^[0-9]+$/)) {

@@ -1,35 +1,22 @@
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { DynamoDB } from 'aws-sdk';
+import {
+  Challenge,
+  ChallengeStore,
+  ChallengeType,
+} from './types';
 
-export enum ChallengeType {
-  SHOWDOWN = 'SHOWDOWN',
-  YOTSUBA = 'YOTSUBA',
-}
-
-export interface Challenge {
-  secret: string;
-  type: ChallengeType;
-  discordId: string;
-  expiryTime: number;
-}
-
-export interface ChallengeDatabaseClient {
-  upsertChallenge(challenge: Challenge): Promise<Challenge>;
-  getChallenge(secret: string, type: ChallengeType): Promise<Challenge | undefined>;
-  deleteChallenge(secret: string, type: ChallengeType): Promise<boolean>;
-}
-
-export interface DynamoDBChallengeDatabaseConfiguration {
+interface DynamoDBChallengeStoreConfiguration {
   challengeTableName: string;
 }
 
-export class DynamoDBChallengeDatabaseClient implements ChallengeDatabaseClient {
+export class DynamoDBChallengeStore implements ChallengeStore {
   client: DynamoDB.DocumentClient;
 
-  configuration: DynamoDBChallengeDatabaseConfiguration;
+  configuration: DynamoDBChallengeStoreConfiguration;
 
   constructor(
     client: DynamoDB.DocumentClient,
-    configuration: DynamoDBChallengeDatabaseConfiguration,
+    configuration: DynamoDBChallengeStoreConfiguration,
   ) {
     this.client = client;
     this.configuration = configuration;

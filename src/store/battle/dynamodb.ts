@@ -1,30 +1,21 @@
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { DynamoDB } from 'aws-sdk';
+import {
+  Battle,
+  BattleStore,
+} from './types';
 
-interface Battle {
-  showdownId: string;
-  battleRoom: string;
-  isChamp: boolean;
-  battleStartTime: number;
-}
-
-export interface BattleDatabaseClient {
-  upsertBattle(battle: Battle): Promise<Battle>;
-  getBattle(showdownId: string, battleRoom: string): Promise<Battle | undefined>;
-  deleteBattle(showdownId: string, battleRoom: string): Promise<boolean>;
-}
-
-export interface DynamoDBBattleDatabaseConfiguration {
+interface DynamoDBBattleStoreConfiguration {
   battleTableName: string;
 }
 
-export class DynamoDBBattleDatabaseClient implements BattleDatabaseClient {
+export class DynamoDBBattleStore implements BattleStore {
   client: DynamoDB.DocumentClient;
 
-  configuration: DynamoDBBattleDatabaseConfiguration;
+  configuration: DynamoDBBattleStoreConfiguration;
 
   constructor(
     client: DynamoDB.DocumentClient,
-    configuration: DynamoDBBattleDatabaseConfiguration,
+    configuration: DynamoDBBattleStoreConfiguration,
   ) {
     this.client = client;
     this.configuration = configuration;

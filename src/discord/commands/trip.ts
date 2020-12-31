@@ -1,5 +1,5 @@
 import { User as DiscordUser, Message, MessageEmbed } from 'discord.js';
-import { UserDatabaseClient } from '../../verification';
+import { UserStore } from '../../store/user';
 
 const createUserSearchEmbed = (tripcode: string, discordUsers: DiscordUser[]) => {
   const userSearchEmbed = new MessageEmbed()
@@ -22,10 +22,10 @@ const createUserSearchEmbed = (tripcode: string, discordUsers: DiscordUser[]) =>
   return userSearchEmbed;
 };
 
-export const createTripCommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createTripCommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const tripcode = commandText;
-    const users = await userDatabaseClient.getUsersByTripcode(tripcode);
+    const users = await userStore.getUsersByTripcode(tripcode);
     const discordUsers = await Promise.all(
       users.map((user) => message.client.users.fetch(user.discordId)),
     );

@@ -1,14 +1,15 @@
 import { Message } from 'discord.js';
-import { ConfigurationStore } from '../configuration';
+import { VerificationClient } from '../verification';
+import { UserStore } from '../store/user';
+import { ConfigurationStore } from '../store/configuration';
 import { BotSettings } from '../settings';
-import { VerificationClient, UserDatabaseClient } from '../verification';
-import { createCommands } from './commands';
+import { RegisteredCommand } from './types';
 import {
   createBattlePostHandler,
-  createThreadHandler,
   createChallengePostHandler,
+  createThreadHandler,
 } from './notifier';
-import { RegisteredCommand } from './types';
+import { createCommands } from './commands';
 
 const commandPrefix = '!'; // TODO: Allow customization of this
 
@@ -16,13 +17,13 @@ export const createMessageHandler = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,
   verificationClient: VerificationClient,
-  userDatabaseClient: UserDatabaseClient,
+  userStore: UserStore,
 ) => {
   const registeredCommands: RegisteredCommand[] = createCommands(
     settings,
     configurationStore,
     verificationClient,
-    userDatabaseClient,
+    userStore,
   );
 
   return async (message: Message) => {

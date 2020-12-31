@@ -1,11 +1,11 @@
+import { setToString } from './utility';
 import { DogarsSet } from './types';
 import {
   advancedSearchSets,
-  getSet,
   getRandomSetId,
+  getSet,
   searchSets,
 } from './api';
-import { setToString } from './utility';
 
 export {
   advancedSearchSets,

@@ -1,5 +1,5 @@
-import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import Emittery from 'emittery';
+import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { BattlePostEvent } from '../discord/notifier';
 import { toId } from './utility';
 

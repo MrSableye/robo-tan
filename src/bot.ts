@@ -1,41 +1,41 @@
 import Discord from 'discord.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { PrettyClient } from '@showderp/pokemon-showdown-ts';
+import {
+  UserChallengeVerificationClient,
+} from './verification';
+import { DynamoDBUserStore } from './store/user';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
   OrderedFailThroughStore,
-} from './configuration';
+} from './store/configuration';
+import { DynamoDBChallengeStore } from './store/challenge';
+import { DynamoDBBattleStore } from './store/battle';
+import {
+  createBattleMonitor,
+  createVerificationMonitor,
+} from './showdown';
+import { createShowderpMonitor } from './showderp';
+import { BotSettings } from './settings';
 import {
   createBattlePostHandler,
-  createThreadHandler,
-  createMessageHandler,
   createChallengePostHandler,
+  createMessageHandler,
+  createThreadHandler,
 } from './discord';
-import { createShowderpMonitor } from './showderp';
-import { createShowdownClient } from './showdown';
-import {
-  ChallengeDatabaseClient,
-  DynamoDBChallengeDatabaseClient,
-  DynamoDBUserDatabaseClient,
-  DatabaseVerificationClient,
-  UserDatabaseClient,
-  VerificationClient,
-} from './verification';
-import { createBattleMonitor } from './showdown/battle-monitor';
-import { BattleDatabaseClient, DynamoDBBattleDatabaseClient } from './verification/battle-store';
-import { BotSettings } from './settings';
 
 export const createBot = async (settings: BotSettings) => {
   const dynamoDBClient = new DynamoDB.DocumentClient();
 
-  const challengeDatabaseClient: ChallengeDatabaseClient = new DynamoDBChallengeDatabaseClient(
+  const challengeStore = new DynamoDBChallengeStore(
     dynamoDBClient,
     {
       challengeTableName: settings.databaseSettings.challengeTableName,
     },
   );
 
-  const userDatabaseClient: UserDatabaseClient = new DynamoDBUserDatabaseClient(
+  const userStore = new DynamoDBUserStore(
     dynamoDBClient,
     {
       userTableName: settings.databaseSettings.userTableName,
@@ -44,12 +44,12 @@ export const createBot = async (settings: BotSettings) => {
     },
   );
 
-  const verificationClient: VerificationClient = new DatabaseVerificationClient(
-    challengeDatabaseClient,
-    userDatabaseClient,
+  const verificationClient = new UserChallengeVerificationClient(
+    challengeStore,
+    userStore,
   );
 
-  const battleDatabaseClient: BattleDatabaseClient = new DynamoDBBattleDatabaseClient(
+  const battleStore = new DynamoDBBattleStore(
     dynamoDBClient,
     {
       battleTableName: settings.databaseSettings.battleTableName,
@@ -68,11 +68,18 @@ export const createBot = async (settings: BotSettings) => {
 
   const discordClient = new Discord.Client();
 
-  const [showderpMonitorTimeout, showderpMonitor] = await createShowderpMonitor(
+  const {
+    timeout: showderpMonitorTimeout,
+    showderpMonitor,
+  } = await createShowderpMonitor(
     15 * 1000,
     configurationStore,
   );
-  const showdownClient = createShowdownClient(verificationClient);
+
+  const showdownClient = new PrettyClient({
+    debug: true,
+    debugPrefix: '[SHOWDOWN CLIENT]',
+  });
 
   const {
     battleEventEmitter,
@@ -80,12 +87,16 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeBattleMonitor,
   } = createBattleMonitor(showdownClient);
 
+  const {
+    unsubscribe: unsubscribeVerificationMonitor,
+  } = createVerificationMonitor(showdownClient, verificationClient);
+
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
   battleEventEmitter.on('end', async ({ roomName, room }) => {
     try {
       await Promise.all(
         Object.entries(room.participants)
-          .map(([showdownId, { isChamp }]) => battleDatabaseClient.upsertBattle({
+          .map(([showdownId, { isChamp }]) => battleStore.upsertBattle({
             showdownId,
             battleRoom: roomName,
             isChamp,
@@ -133,7 +144,7 @@ export const createBot = async (settings: BotSettings) => {
     settings,
     configurationStore,
     verificationClient,
-    userDatabaseClient,
+    userStore,
   ));
 
   discordClient.on('error', console.error);
@@ -141,6 +152,7 @@ export const createBot = async (settings: BotSettings) => {
   discordClient.on('disconnect', () => {
     clearInterval(showderpMonitorTimeout);
     unsubscribeBattleMonitor();
+    unsubscribeVerificationMonitor();
     showdownClient.disconnect();
   });
 

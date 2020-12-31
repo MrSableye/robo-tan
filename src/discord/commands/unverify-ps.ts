@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
-import { UserDatabaseClient } from '../../verification';
+import { UserStore } from '../../store/user';
 
-export const createUnverifyPsCommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createUnverifyPsCommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message) => {
-    const user = await userDatabaseClient.deleteShowdownId(message.author.id);
+    const user = await userStore.deleteShowdownId(message.author.id);
 
     if (user) {
       const userEmbed = createUserEmbed(message.author, user);

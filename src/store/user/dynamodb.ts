@@ -1,28 +1,16 @@
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import {
+  User,
+  UserStore,
+} from './types';
 
-export interface User {
-  discordId: string;
-  showdownIds?: string[];
-  tripcode?: string;
-}
-
-export interface UserDatabaseClient {
-  upsertUser(user: User): Promise<User>;
-  getUser(discordId: string): Promise<User | undefined>;
-  deleteShowdownId(discordId: string): Promise<User | undefined>;
-  deleteTripcode(discordId: string): Promise<User | undefined>;
-  deleteUser(discordId: string): Promise<boolean>;
-  getUsersByShowdownId(showdownId: string): Promise<User[]>;
-  getUsersByTripcode(tripcode: string): Promise<User[]>;
-}
-
-export interface DynamoDBUserDatabaseConfiguration {
+interface DynamoDBUserDatabaseConfiguration {
   userTableName: string;
   showdownIdIndexName: string;
   tripcodeIndexName: string;
 }
 
-export class DynamoDBUserDatabaseClient implements UserDatabaseClient {
+export class DynamoDBUserStore implements UserStore {
   client: DynamoDB.DocumentClient;
 
   configuration: DynamoDBUserDatabaseConfiguration;

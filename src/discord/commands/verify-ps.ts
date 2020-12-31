@@ -1,5 +1,9 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Challenge, ChallengeType, VerificationClient } from '../../verification';
+import { VerificationClient } from '../../verification';
+import {
+  Challenge,
+  ChallengeType,
+} from '../../store/challenge';
 
 const createVerificationEmbed = (challenge: Challenge) => new MessageEmbed()
   .setDescription('In order to associate your Pokémon Showdown account with your Discord account, you will have to send a secret message to `Robo-tan` on Pokémon Showdown.')

@@ -1,6 +1,6 @@
 import { User as DiscordUser, Message, MessageEmbed } from 'discord.js';
+import { UserStore } from '../../store/user';
 import { toId } from '../../showdown/utility';
-import { UserDatabaseClient } from '../../verification';
 
 const createUserSearchEmbed = (username: string, discordUsers: DiscordUser[]) => {
   const userSearchEmbed = new MessageEmbed()
@@ -22,10 +22,10 @@ const createUserSearchEmbed = (username: string, discordUsers: DiscordUser[]) =>
   return userSearchEmbed;
 };
 
-export const createPsCommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createPsCommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const username = commandText;
-    const users = await userDatabaseClient.getUsersByShowdownId(toId(username));
+    const users = await userStore.getUsersByShowdownId(toId(username));
     const discordUsers = await Promise.all(
       users.map((user) => message.client.users.fetch(user.discordId)),
     );

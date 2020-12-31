@@ -1,8 +1,8 @@
 import axios from 'axios';
 import {
   advancedSearchSets,
-  getSet,
   getRandomSetId,
+  getSet,
   searchSets,
 } from '..';
 

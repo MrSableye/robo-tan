@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import { advancedSearchSets, getRandomSetId, getSet } from '../../dogars';
-import { RegisteredCommand } from '../types';
 import { createSetEmbed } from '../utility';
+import { RegisteredCommand } from '../types';
+import { advancedSearchSets, getRandomSetId, getSet } from '../../dogars';
 
 export const handleRandomPokemon = async (message: Message, commandText: string) => {
   const parameters = commandText.split(',').reduce((currentParameters: { [key: string]: string }, parameter) => {

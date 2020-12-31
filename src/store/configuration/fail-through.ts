@@ -1,5 +1,3 @@
-import { DynamoDBConfigurationStore } from './database-store';
-import { InMemoryConfigurationStore } from './memory-store';
 import {
   ConfigurationStore,
   GlobalConfiguration,
@@ -108,13 +106,3 @@ export class OrderedFailThroughStore implements ConfigurationStore {
     return value;
   }
 }
-
-export {
-  ConfigurationStore,
-  DynamoDBConfigurationStore,
-  GlobalConfiguration,
-  GlobalConfigurationKey,
-  GuildConfiguration,
-  GuildConfigurationKey,
-  InMemoryConfigurationStore,
-};

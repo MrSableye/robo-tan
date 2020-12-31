@@ -1,4 +1,4 @@
-import { Message, EmbedField } from 'discord.js';
+import { EmbedField, Message } from 'discord.js';
 
 export type CommandHandler = (message: Message, commandText: string) => Promise<Message>;
 

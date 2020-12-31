@@ -1,8 +1,8 @@
-import { createShowderpMonitor, ShowdownMonitor } from './monitor';
 import { Post } from './yotsuba';
+import { ShowderpMonitor, createShowderpMonitor } from './monitor';
 
 export {
   createShowderpMonitor,
   Post,
-  ShowdownMonitor,
+  ShowderpMonitor,
 };

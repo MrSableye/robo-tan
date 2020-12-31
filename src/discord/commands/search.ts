@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
-import { advancedSearchSets } from '../../dogars';
-import { RegisteredCommand } from '../types';
 import { createSetEmbed } from '../utility';
+import { RegisteredCommand } from '../types';
+import { advancedSearchSets } from '../../dogars';
 
 export const handleSearch = async (message: Message, commandText: string) => {
   const parameters = commandText.split(',').reduce((currentParameters: { [key: string]: string }, parameter) => {

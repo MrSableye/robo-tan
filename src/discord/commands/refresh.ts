@@ -1,10 +1,10 @@
-import { StepFunctions } from 'aws-sdk';
-import { Message, MessageEmbed } from 'discord.js';
 import moment from 'moment';
-import { ConfigurationStore } from '../../configuration';
-import { BotSettings } from '../../settings';
-import { UserDatabaseClient } from '../../verification';
+import { Message, MessageEmbed } from 'discord.js';
+import { StepFunctions } from 'aws-sdk';
 import { createErrorEmbed } from '../utility';
+import { UserStore } from '../../store/user';
+import { ConfigurationStore } from '../../store/configuration';
+import { BotSettings } from '../../settings';
 
 const refreshCooldown = 30 * 60 * 1000; // TODO: Make this configurable
 
@@ -23,7 +23,7 @@ const createCooldownEmbed = (cooldownElapsed: number) => {
 export const createRefreshCommand = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,
-  userDatabaseClient: UserDatabaseClient,
+  userStore: UserStore,
 ) => {
   const handleRefresh = async (message: Message) => {
     const { author } = message;
@@ -34,7 +34,7 @@ export const createRefreshCommand = (
     const currentTime = new Date().getTime();
 
     if (!lastRefresh || (currentTime - lastRefresh > refreshCooldown)) {
-      const user = await userDatabaseClient.getUser(author.id);
+      const user = await userStore.getUser(author.id);
 
       if (user) {
         const stepFunctionClient = new StepFunctions();

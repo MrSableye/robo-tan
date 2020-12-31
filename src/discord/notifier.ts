@@ -1,6 +1,7 @@
 import { Client, MessageEmbed } from 'discord.js';
+import { VerificationClient } from '../verification';
+import { ChallengeType } from '../store/challenge';
 import { Post } from '../showderp';
-import { ChallengeType, VerificationClient } from '../verification';
 
 const createThreadEmbed = (thread: Post) => {
   const messageEmbed = new MessageEmbed()

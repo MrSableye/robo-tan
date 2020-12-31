@@ -1,10 +1,10 @@
 import Emittery from 'emittery';
+import { ConfigurationStore } from '../store/configuration';
 import {
+  Post,
   getCatalog,
   getThread,
-  Post,
 } from './yotsuba';
-import { ConfigurationStore } from '../configuration';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga'];
 const battleLinkPatterns: RegExp[] = [
@@ -36,7 +36,7 @@ const getCurrentThreads = async (): Promise<Post[]> => {
     .filter((thread) => isShowderpThread(thread));
 };
 
-export type ShowdownMonitor = Emittery.Typed<{
+export type ShowderpMonitor = Emittery.Typed<{
   thread: Post,
   battlePost: [Post, Post, string],
   challengePosts: Post[],
@@ -48,8 +48,8 @@ type ThreadPostPair = [Post, Post];
 export const createShowderpMonitor = async (
   frequency: number,
   configurationStore: ConfigurationStore,
-): Promise<[NodeJS.Timeout, ShowdownMonitor]> => {
-  const showdownEventEmitter: ShowdownMonitor = new Emittery.Typed<{
+) => {
+  const showderpMonitor: ShowderpMonitor = new Emittery.Typed<{
     thread: Post,
     battlePost: [Post, Post, string],
     challengePosts: Post[],
@@ -68,7 +68,7 @@ export const createShowderpMonitor = async (
           currentThread.no,
         );
 
-        showdownEventEmitter.emit('thread', currentThread);
+        showderpMonitor.emit('thread', currentThread);
       }
     }));
 
@@ -111,7 +111,7 @@ export const createShowderpMonitor = async (
             }, {});
 
             Object.keys(rooms).forEach((room) => {
-              showdownEventEmitter.emit('battlePost', [
+              showderpMonitor.emit('battlePost', [
                 showderpThread,
                 showderpPost,
                 room,
@@ -121,7 +121,7 @@ export const createShowderpMonitor = async (
         }
 
         if (showderpPost.trip && showderpPost.name && showderpPost.name.startsWith('VerifyUser')) {
-          showdownEventEmitter.emit('challengePosts', [showderpPost]);
+          showderpMonitor.emit('challengePosts', [showderpPost]);
         }
       }
     });
@@ -132,5 +132,8 @@ export const createShowderpMonitor = async (
     );
   }, frequency);
 
-  return [timeout, showdownEventEmitter];
+  return {
+    timeout,
+    showderpMonitor,
+  };
 };

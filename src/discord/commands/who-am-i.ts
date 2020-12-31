@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
-import { UserDatabaseClient } from '../../verification';
+import { UserStore } from '../../store/user';
 
-export const createWhoAmICommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createWhoAmICommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message) => {
-    const user = await userDatabaseClient.getUser(message.author.id);
+    const user = await userStore.getUser(message.author.id);
 
     if (user) {
       return message.reply(createUserEmbed(message.author, user));

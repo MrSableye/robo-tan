@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { createErrorEmbed, createUserEmbed } from '../utility';
-import { UserDatabaseClient } from '../../verification';
+import { UserStore } from '../../store/user';
 
 const findDiscordUser = async (message: Message, commandText: string) => {
   if (message.mentions.users.size > 0) {
@@ -40,12 +40,12 @@ const findDiscordUser = async (message: Message, commandText: string) => {
   return undefined;
 };
 
-export const createWhoIsCommand = (userDatabaseClient: UserDatabaseClient) => {
+export const createWhoIsCommand = (userStore: UserStore) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const discordUser = await findDiscordUser(message, commandText);
 
     if (discordUser) {
-      const user = await userDatabaseClient.getUser(discordUser.id);
+      const user = await userStore.getUser(discordUser.id);
 
       if (user) {
         return message.reply(createUserEmbed(discordUser, user));

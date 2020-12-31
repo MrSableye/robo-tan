@@ -1,5 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { Challenge, ChallengeType, VerificationClient } from '../../verification';
+import { VerificationClient } from '../../verification';
+import { Challenge, ChallengeType } from '../../store/challenge';
 
 const createVerificationEmbed = (challenge: Challenge) => new MessageEmbed()
   .setDescription('In order to associate your tripcode with your Discord account, you will have to create a post in the current thread with your tripcode and the following name.')
