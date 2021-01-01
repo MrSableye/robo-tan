@@ -5,6 +5,7 @@ import { BotSettings } from '../../settings';
 import { createWhoIsCommand } from './who-is';
 import { createWhoAmICommand } from './who-am-i';
 import { createVerifyTripCommand } from './verify-trip';
+import { createVerifyPsRoomCommand } from './verify-ps-room';
 import { createVerifyPsCommand } from './verify-ps';
 import { createUnverifyTripCommand } from './unverify-trip';
 import { createUnverifyPsCommand } from './unverify-ps';
@@ -21,9 +22,11 @@ export const createCommands = (
   configurationStore: ConfigurationStore,
   showdownVerificationClient: VerificationClient,
   yotsubaVerificationClient: VerificationClient,
+  showdownRoomVerificationClient: VerificationClient<string[]>,
   userStore: UserStore,
 ) => {
   const verifyPsCommand = createVerifyPsCommand(showdownVerificationClient);
+  const verifyPsRoomCommand = createVerifyPsRoomCommand(showdownRoomVerificationClient);
   const verifyTripCommand = createVerifyTripCommand(yotsubaVerificationClient);
   const whoAmICommand = createWhoAmICommand(userStore);
   const whoIsCommand = createWhoIsCommand(userStore);
@@ -37,6 +40,7 @@ export const createCommands = (
     randomPokemonCommand,
     searchcommand,
     verifyPsCommand,
+    verifyPsRoomCommand,
     verifyTripCommand,
     unverifyPsCommand,
     unverifyTripCommand,
@@ -53,6 +57,7 @@ export const createCommands = (
     randomPokemonCommand,
     searchcommand,
     verifyPsCommand,
+    verifyPsRoomCommand,
     verifyTripCommand,
     unverifyPsCommand,
     unverifyTripCommand,

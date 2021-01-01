@@ -18,6 +18,7 @@ export const createMessageHandler = (
   configurationStore: ConfigurationStore,
   showdownVerificationClient: VerificationClient,
   yotsubaVerificationClient: VerificationClient,
+  showdownRoomVerificationClient: VerificationClient<string[]>,
   userStore: UserStore,
 ) => {
   const registeredCommands: RegisteredCommand[] = createCommands(
@@ -25,6 +26,7 @@ export const createMessageHandler = (
     configurationStore,
     showdownVerificationClient,
     yotsubaVerificationClient,
+    showdownRoomVerificationClient,
     userStore,
   );
 

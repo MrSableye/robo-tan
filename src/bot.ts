@@ -1,7 +1,10 @@
 import Discord from 'discord.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { PrettyClient } from '@showderp/pokemon-showdown-ts';
-import { StringVerificationClient } from './verification';
+import {
+  StringVerificationClient,
+  StringListVerificationClient,
+} from './verification';
 import { DynamoDBUserStore } from './store/user';
 import {
   DynamoDBConfigurationStore,
@@ -13,6 +16,7 @@ import { DynamoDBBattleStore } from './store/battle';
 import {
   createBattleMonitor,
   createVerificationMonitor,
+  toId,
 } from './showdown';
 import { createShowderpMonitor } from './showderp';
 import { BotSettings } from './settings';
@@ -107,7 +111,7 @@ export const createBot = async (settings: BotSettings) => {
             resolve([
               ...official.map((officialChat: { title: string }) => officialChat.title),
               ...chat.map((chatRoom: { title: string }) => chatRoom.title),
-            ]);
+            ].map(toId));
           }
         }
       }
@@ -124,7 +128,13 @@ export const createBot = async (settings: BotSettings) => {
   await showdownClient.send('|/cmd rooms');
 
   const rooms = await roomPromise;
-  console.log(rooms);
+  const showdownRoomVerificationClient = new StringListVerificationClient(
+    ChallengeType.SHOWDOWN_ROOM,
+    challengeStore,
+    userStore,
+    rooms,
+    6,
+  );
 
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
   battleEventEmitter.on('end', async ({ roomName, room }) => {
@@ -174,6 +184,7 @@ export const createBot = async (settings: BotSettings) => {
     configurationStore,
     showdownVerificationClient,
     yotsubaVerificationClient,
+    showdownRoomVerificationClient,
     userStore,
   ));
 
