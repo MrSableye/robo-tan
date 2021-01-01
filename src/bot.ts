@@ -104,10 +104,10 @@ export const createBot = async (settings: BotSettings) => {
           const { official, chat } = JSON.parse(response);
 
           if (official && Array.isArray(official) && chat && Array.isArray(chat)) {
-            return [
+            resolve([
               ...official.map((officialChat: { title: string }) => officialChat.title),
               ...chat.map((chatRoom: { title: string }) => chatRoom.title),
-            ];
+            ]);
           }
         }
       }
