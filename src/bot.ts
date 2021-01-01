@@ -185,6 +185,7 @@ export const createBot = async (settings: BotSettings) => {
     showdownVerificationClient,
     yotsubaVerificationClient,
     showdownRoomVerificationClient,
+    showdownClient,
     userStore,
   ));
 

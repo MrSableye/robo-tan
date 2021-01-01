@@ -1,4 +1,5 @@
 import { Message } from 'discord.js';
+import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { VerificationClient } from '../verification';
 import { UserStore } from '../store/user';
 import { ConfigurationStore } from '../store/configuration';
@@ -19,6 +20,7 @@ export const createMessageHandler = (
   showdownVerificationClient: VerificationClient,
   yotsubaVerificationClient: VerificationClient,
   showdownRoomVerificationClient: VerificationClient<string[]>,
+  showdownClient: PrettyClient,
   userStore: UserStore,
 ) => {
   const registeredCommands: RegisteredCommand[] = createCommands(
@@ -27,6 +29,7 @@ export const createMessageHandler = (
     showdownVerificationClient,
     yotsubaVerificationClient,
     showdownRoomVerificationClient,
+    showdownClient,
     userStore,
   );
 
