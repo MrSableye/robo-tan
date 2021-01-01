@@ -86,7 +86,8 @@ export class StringListVerificationClient implements VerificationClient<string[]
     secret: string[],
     successfulUserModifier: (user: User) => User,
   ): Promise<User | undefined> {
-    const sortedSecret = [...secret].sort();
+    const stringSet = new Set(this.stringList);
+    const sortedSecret = [...secret.filter((s) => stringSet.has(s))].sort();
 
     const rawChallenge = await this.challengeStore.getChallenge(
       sortedSecret.join('|'),
