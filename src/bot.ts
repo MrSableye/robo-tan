@@ -98,7 +98,6 @@ export const createBot = async (settings: BotSettings) => {
 
   const roomPromise = new Promise<string[]>((resolve, reject) => {
     showdownClient.eventEmitter.on('default', (defaultEvent) => {
-      console.log('default', defaultEvent.event[0]);
       if (defaultEvent.rawEventName === 'queryresponse') {
         const [responseType, response] = defaultEvent.event[0];
         if (responseType && responseType === 'rooms' && response) {
@@ -122,6 +121,7 @@ export const createBot = async (settings: BotSettings) => {
     settings.showdownSettings.username,
     settings.showdownSettings.password,
   );
+  await showdownClient.send('|/cmd rooms');
 
   const rooms = await roomPromise;
   console.log(rooms);
