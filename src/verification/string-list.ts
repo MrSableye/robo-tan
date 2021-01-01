@@ -11,6 +11,7 @@ import { VerificationClient } from './types';
 
 const generateChallenge = (
   discordId: string,
+  type: ChallengeType,
   stringList: string[],
   size: number,
 ): Challenge<string[]> => {
@@ -32,7 +33,7 @@ const generateChallenge = (
 
   return {
     secret: secretList,
-    type: ChallengeType.YOTSUBA,
+    type,
     discordId,
     expiryTime: Math.floor((new Date().getTime() + 5 * 60 * 1000) / 1000),
   };
@@ -66,6 +67,7 @@ export class StringListVerificationClient implements VerificationClient<string[]
   async createChallenge(discordId: string): Promise<Challenge<string[]>> {
     const challenge = generateChallenge(
       discordId,
+      this.type,
       this.stringList,
       this.secretListSize,
     );
