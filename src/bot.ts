@@ -96,8 +96,9 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeVerificationMonitor,
   } = createVerificationMonitor(showdownClient, showdownVerificationClient);
 
-  const roomPromise = new Promise<string[]>((resolve) => {
+  const roomPromise = new Promise<string[]>((resolve, reject) => {
     showdownClient.eventEmitter.on('default', (defaultEvent) => {
+      console.log('default', defaultEvent.event[0]);
       if (defaultEvent.rawEventName === 'queryresponse') {
         const [responseType, response] = defaultEvent.event[0];
         if (responseType && responseType === 'rooms' && response) {
@@ -112,6 +113,8 @@ export const createBot = async (settings: BotSettings) => {
         }
       }
     });
+
+    setTimeout(reject, 10000);
   });
 
   await showdownClient.connect();
