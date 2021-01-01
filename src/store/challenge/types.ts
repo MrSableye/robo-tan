@@ -4,15 +4,15 @@ export enum ChallengeType {
   YOTSUBA = 'YOTSUBA',
 }
 
-export interface Challenge<S = string> {
-  secret: S;
+export interface Challenge<T = string> {
+  secret: T;
   type: ChallengeType;
   discordId: string;
   expiryTime: number;
 }
 
-export interface ChallengeStore<S = string> {
-  upsertChallenge(challenge: Challenge<S>): Promise<Challenge<S>>;
-  getChallenge(secret: S, type: ChallengeType): Promise<Challenge<S> | undefined>;
-  deleteChallenge(secret: S, type: ChallengeType): Promise<boolean>;
+export interface ChallengeStore {
+  upsertChallenge(challenge: Challenge): Promise<Challenge>;
+  getChallenge(secret: string, type: ChallengeType): Promise<Challenge | undefined>;
+  deleteChallenge(secret: string, type: ChallengeType): Promise<boolean>;
 }

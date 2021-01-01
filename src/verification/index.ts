@@ -1,7 +1,9 @@
-import { UserChallengeVerificationClient } from './user-challenge-client';
 import { VerificationClient } from './types';
+import { StringListVerificationClient } from './string-list';
+import { StringVerificationClient } from './string';
 
 export {
-  UserChallengeVerificationClient,
+  StringVerificationClient,
+  StringListVerificationClient,
   VerificationClient,
 };

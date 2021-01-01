@@ -1,6 +1,5 @@
 import { Client, MessageEmbed } from 'discord.js';
 import { VerificationClient } from '../verification';
-import { ChallengeType } from '../store/challenge';
 import { Post } from '../showderp';
 
 const createThreadEmbed = (thread: Post) => {
@@ -88,7 +87,6 @@ export const createChallengePostHandler = (
   challengePosts.map(async (challengePost) => {
     const user = await verificationClient.verifyChallengeAndUpdateUser(
       (challengePost.name || '').substr(10),
-      ChallengeType.YOTSUBA,
       (userToUpdate) => ({
         ...userToUpdate,
         tripcode: challengePost.trip || '',

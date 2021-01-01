@@ -9,38 +9,41 @@ import {
 } from '../store/challenge';
 import { VerificationClient } from './types';
 
-const generateChallenge = (discordId: string, type: ChallengeType) => ({
+const generateChallenge = (discordId: string) => ({
   secret: Math.random().toString(36).substring(2, 15),
-  type,
+  type: ChallengeType.YOTSUBA,
   discordId,
   expiryTime: Math.floor((new Date().getTime() + 5 * 60 * 1000) / 1000),
 });
 
-export class UserChallengeVerificationClient implements VerificationClient {
+export class StringVerificationClient implements VerificationClient {
+  type: ChallengeType;
+
   challengeStore: ChallengeStore;
 
   userStore: UserStore;
 
   constructor(
+    type: ChallengeType,
     challengeStore: ChallengeStore,
     userStore: UserStore,
   ) {
+    this.type = type;
     this.challengeStore = challengeStore;
     this.userStore = userStore;
   }
 
-  async createChallenge(discordId: string, type: ChallengeType): Promise<Challenge> {
-    const challenge = generateChallenge(discordId, type);
+  async createChallenge(discordId: string): Promise<Challenge> {
+    const challenge = generateChallenge(discordId);
 
     return this.challengeStore.upsertChallenge(challenge);
   }
 
   async verifyChallengeAndUpdateUser(
     secret: string,
-    type: ChallengeType,
     successfulUserModifier: (user: User) => User,
   ): Promise<User | undefined> {
-    const challenge = await this.challengeStore.getChallenge(secret, type);
+    const challenge = await this.challengeStore.getChallenge(secret, this.type);
 
     if (challenge) {
       let user: User | undefined = await this.userStore.getUser(challenge.discordId);
@@ -55,7 +58,7 @@ export class UserChallengeVerificationClient implements VerificationClient {
 
       user = await this.userStore.upsertUser(user);
 
-      await this.challengeStore.deleteChallenge(secret, type);
+      await this.challengeStore.deleteChallenge(secret, this.type);
 
       return user;
     }

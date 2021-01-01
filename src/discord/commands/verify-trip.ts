@@ -1,16 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { VerificationClient } from '../../verification';
-import { Challenge, ChallengeType } from '../../store/challenge';
+import { Challenge } from '../../store/challenge';
 
 const createVerificationEmbed = (challenge: Challenge) => new MessageEmbed()
   .setDescription('In order to associate your tripcode with your Discord account, you will have to create a post in the current thread with your tripcode and the following name.')
   .addField('Name', `\`VerifyUser${challenge.secret}\``);
 
-export const createVerifyTripCommand = (verificationClient: VerificationClient) => {
+export const createVerifyTripCommand = (yotsubaVerificationClient: VerificationClient) => {
   const commandHandler = async (message: Message) => {
-    const challenge = await verificationClient.createChallenge(
+    const challenge = await yotsubaVerificationClient.createChallenge(
       message.author.id,
-      ChallengeType.YOTSUBA,
     );
 
     return message.author.send(createVerificationEmbed(challenge));

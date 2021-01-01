@@ -1,6 +1,5 @@
 import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { VerificationClient } from '../verification';
-import { ChallengeType } from '../store/challenge';
 import { toId } from './utility';
 
 export const createVerificationMonitor = (
@@ -17,7 +16,6 @@ export const createVerificationMonitor = (
 
       const user = await verificationClient.verifyChallengeAndUpdateUser(
         secret,
-        ChallengeType.SHOWDOWN,
         (userToUpdate) => {
           if (userToUpdate.showdownIds) {
             if (!userToUpdate.showdownIds.some((showdownId) => showdownId === newShowdownId)) {

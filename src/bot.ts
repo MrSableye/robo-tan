@@ -1,16 +1,14 @@
 import Discord from 'discord.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { PrettyClient } from '@showderp/pokemon-showdown-ts';
-import {
-  UserChallengeVerificationClient,
-} from './verification';
+import { StringVerificationClient } from './verification';
 import { DynamoDBUserStore } from './store/user';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
   OrderedFailThroughStore,
 } from './store/configuration';
-import { DynamoDBChallengeStore } from './store/challenge';
+import { ChallengeType, DynamoDBChallengeStore } from './store/challenge';
 import { DynamoDBBattleStore } from './store/battle';
 import {
   createBattleMonitor,
@@ -44,7 +42,14 @@ export const createBot = async (settings: BotSettings) => {
     },
   );
 
-  const verificationClient = new UserChallengeVerificationClient(
+  const showdownVerificationClient = new StringVerificationClient(
+    ChallengeType.SHOWDOWN,
+    challengeStore,
+    userStore,
+  );
+
+  const yotsubaVerificationClient = new StringVerificationClient(
+    ChallengeType.YOTSUBA,
     challengeStore,
     userStore,
   );
@@ -89,7 +94,7 @@ export const createBot = async (settings: BotSettings) => {
 
   const {
     unsubscribe: unsubscribeVerificationMonitor,
-  } = createVerificationMonitor(showdownClient, verificationClient);
+  } = createVerificationMonitor(showdownClient, showdownVerificationClient);
 
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
   battleEventEmitter.on('end', async ({ roomName, room }) => {
@@ -125,7 +130,7 @@ export const createBot = async (settings: BotSettings) => {
 
     showderpMonitor.on(
       'challengePosts',
-      createChallengePostHandler(discordClient, verificationClient),
+      createChallengePostHandler(discordClient, yotsubaVerificationClient),
     );
 
     await showdownClient.connect();
@@ -143,7 +148,8 @@ export const createBot = async (settings: BotSettings) => {
   discordClient.on('message', createMessageHandler(
     settings,
     configurationStore,
-    verificationClient,
+    showdownVerificationClient,
+    yotsubaVerificationClient,
     userStore,
   ));
 

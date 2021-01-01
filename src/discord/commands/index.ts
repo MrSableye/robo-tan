@@ -19,11 +19,12 @@ import { registeredCommand as dataCommand } from './data';
 export const createCommands = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,
-  verificationClient: VerificationClient,
+  showdownVerificationClient: VerificationClient,
+  yotsubaVerificationClient: VerificationClient,
   userStore: UserStore,
 ) => {
-  const verifyPsCommand = createVerifyPsCommand(verificationClient);
-  const verifyTripCommand = createVerifyTripCommand(verificationClient);
+  const verifyPsCommand = createVerifyPsCommand(showdownVerificationClient);
+  const verifyTripCommand = createVerifyTripCommand(yotsubaVerificationClient);
   const whoAmICommand = createWhoAmICommand(userStore);
   const whoIsCommand = createWhoIsCommand(userStore);
   const psCommand = createPsCommand(userStore);

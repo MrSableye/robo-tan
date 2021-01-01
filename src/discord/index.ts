@@ -16,13 +16,15 @@ const commandPrefix = '!'; // TODO: Allow customization of this
 export const createMessageHandler = (
   settings: BotSettings,
   configurationStore: ConfigurationStore,
-  verificationClient: VerificationClient,
+  showdownVerificationClient: VerificationClient,
+  yotsubaVerificationClient: VerificationClient,
   userStore: UserStore,
 ) => {
   const registeredCommands: RegisteredCommand[] = createCommands(
     settings,
     configurationStore,
-    verificationClient,
+    showdownVerificationClient,
+    yotsubaVerificationClient,
     userStore,
   );
 
