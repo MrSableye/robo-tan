@@ -96,6 +96,33 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeVerificationMonitor,
   } = createVerificationMonitor(showdownClient, showdownVerificationClient);
 
+  const roomPromise = new Promise<string[]>((resolve) => {
+    showdownClient.eventEmitter.on('default', (defaultEvent) => {
+      if (defaultEvent.rawEventName === 'queryresponse') {
+        const [responseType, response] = defaultEvent.event[0];
+        if (responseType && responseType === 'rooms' && response) {
+          const { official, chat } = JSON.parse(response);
+
+          if (official && Array.isArray(official) && chat && Array.isArray(chat)) {
+            return [
+              ...official.map((officialChat: { title: string }) => officialChat.title),
+              ...chat.map((chatRoom: { title: string }) => chatRoom.title),
+            ];
+          }
+        }
+      }
+    });
+  });
+
+  await showdownClient.connect();
+  await showdownClient.login(
+    settings.showdownSettings.username,
+    settings.showdownSettings.password,
+  );
+
+  const rooms = await roomPromise;
+  console.log(rooms);
+
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
   battleEventEmitter.on('end', async ({ roomName, room }) => {
     try {
@@ -131,12 +158,6 @@ export const createBot = async (settings: BotSettings) => {
     showderpMonitor.on(
       'challengePosts',
       createChallengePostHandler(discordClient, yotsubaVerificationClient),
-    );
-
-    await showdownClient.connect();
-    await showdownClient.login(
-      settings.showdownSettings.username,
-      settings.showdownSettings.password,
     );
 
     showderpMonitor.on(
