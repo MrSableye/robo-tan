@@ -100,34 +100,30 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeVerificationMonitor,
   } = createVerificationMonitor(showdownClient, showdownVerificationClient);
 
-  const roomPromise = new Promise<string[]>((resolve, reject) => {
-    showdownClient.eventEmitter.on('default', (defaultEvent) => {
-      if (defaultEvent.rawEventName === 'queryresponse') {
-        const [responseType, response] = defaultEvent.event[0];
-        if (responseType && responseType === 'rooms' && response) {
-          const { official, chat } = JSON.parse(response);
-
-          if (official && Array.isArray(official) && chat && Array.isArray(chat)) {
-            resolve([
-              ...official.map((officialChat: { title: string }) => officialChat.title),
-              ...chat.map((chatRoom: { title: string }) => chatRoom.title),
-            ].map(toId));
-          }
-        }
-      }
-    });
-
-    setTimeout(reject, 10000);
-  });
-
   await showdownClient.connect();
   await showdownClient.login(
     settings.showdownSettings.username,
     settings.showdownSettings.password,
   );
-  await showdownClient.send('|/cmd rooms');
 
-  const rooms = await roomPromise;
+  const [roomQueryResponse] = await Promise.all([
+    showdownClient.receive('queryResponse', 10000, (queryResponseEvent) => {
+      const { responseType } = queryResponseEvent.event[0];
+      return responseType === 'rooms';
+    }),
+    showdownClient.send('|/cmd rooms'),
+  ]);
+
+  const {
+    official: officialChatRooms,
+    chat: chatRooms,
+  } = JSON.parse(roomQueryResponse.event[0].response);
+
+  const rooms = [
+    ...officialChatRooms,
+    ...chatRooms,
+  ].map((chatRoom: { title: string }) => toId(chatRoom.title));
+
   const showdownRoomVerificationClient = new StringListVerificationClient(
     ChallengeType.SHOWDOWN_ROOM,
     challengeStore,
