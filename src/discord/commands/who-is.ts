@@ -19,16 +19,16 @@ const findDiscordUser = async (message: Message, commandText: string) => {
     const guildMembers = await message.guild.members.fetch();
 
     let searchResult = guildMembers.find((guildMember) => {
-      const usernameAndDisciminator = `${guildMember.user.username}#${guildMember.user.discriminator}`;
+      const usernameAndDisciminator = `${guildMember.user.username.toLowerCase()}#${guildMember.user.discriminator.toLowerCase()}`;
 
-      return commandText === usernameAndDisciminator;
+      return commandText.toLowerCase() === usernameAndDisciminator;
     });
 
     if (!searchResult) {
       searchResult = guildMembers.find((guildMember) => {
         const nickname = guildMember.nickname || guildMember.user.username;
 
-        return nickname.includes(commandText);
+        return nickname.toLowerCase().includes(commandText.toLowerCase());
       });
     }
 
