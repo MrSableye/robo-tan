@@ -99,7 +99,7 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
 
     userEmbed.addField(
       'Stats',
-      `Spectated ${user.battles} and champed ${user.champBattles - user.battles} since ${formattedDate}`,
+      `Spectated ${user.battles} and champed ${user.battles - user.champBattles} battles since ${formattedDate}`,
     );
   }
 
