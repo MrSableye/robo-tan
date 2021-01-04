@@ -2,6 +2,11 @@ export interface User {
   discordId: string;
   showdownIds?: string[];
   tripcode?: string;
+  isActive?: boolean;
+  battles?: number;
+  isChamp?: boolean;
+  champBattles?: number;
+  lastUpdated?: string;
 }
 
 export interface UserStore {

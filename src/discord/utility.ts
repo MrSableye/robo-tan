@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { User as DiscordUser, MessageEmbed } from 'discord.js';
 import { User } from '../store/user';
 import { toId } from '../showdown/utility';
@@ -71,7 +72,7 @@ export const createSetEmbed = (set?: DogarsSet): MessageEmbed => {
 };
 
 export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
-  const author = `${discordUser.username}#${discordUser.discriminator}`;
+  const author = `${user.isChamp ? '👑 ' : ''}${discordUser.username}#${discordUser.discriminator}`;
   const avatar = discordUser.avatarURL() || discordUser.defaultAvatarURL;
 
   const userEmbed = new MessageEmbed()
@@ -90,6 +91,15 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
     userEmbed.addField(
       '4chan',
       `[${user.tripcode}](https://archive.nyafuu.org/vp/search/tripcode/${user.tripcode})`,
+    );
+  }
+
+  if (user.battles && user.champBattles && user.lastUpdated) {
+    const formattedDate = moment(user.lastUpdated).subtract(2, 'weeks').format('MMM Do, YYYY');
+
+    userEmbed.addField(
+      'Stats',
+      `Spectated ${user.battles} and champed ${user.champBattles - user.battles} since ${formattedDate}`,
     );
   }
 
