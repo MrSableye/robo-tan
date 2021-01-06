@@ -38,7 +38,7 @@ export const createVerifyPsRoomCheckCommand = (
               showdownIds: [
                 newShowdownId,
                 ...userToUpdate.showdownIds,
-              ].slice(0, 5), // TODO: Make this configurable
+              ].slice(0, 20), // TODO: Make this configurable
             };
           }
         } else {

@@ -129,7 +129,7 @@ export const createBot = async (settings: BotSettings) => {
     challengeStore,
     userStore,
     rooms,
-    6,
+    3,
   );
 
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
