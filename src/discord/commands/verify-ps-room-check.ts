@@ -9,16 +9,14 @@ export const createVerifyPsRoomCheckCommand = (
 ) => {
   const commandHandler = async (message: Message, commandText: string) => {
     const userRoomPromise = new Promise<string[]>((resolve) => {
-      showdownClient.eventEmitter.on('default', (defaultEvent) => {
-        if (defaultEvent.rawEventName === 'queryresponse') {
-          const [responseType, response] = defaultEvent.event[0];
+      showdownClient.eventEmitter.on('queryResponse', (queryResponseEvent) => {
+        const  { responseType, response } = queryResponseEvent.event[0];
 
-          if (responseType && responseType === 'userdetails' && response) {
-            const { rooms } = JSON.parse(response);
+        if (responseType && responseType === 'userdetails' && response) {
+          const { rooms } = JSON.parse(response);
 
-            if (rooms) {
-              resolve(Object.keys(rooms).map(toId));
-            }
+          if (rooms) {
+            resolve(Object.keys(rooms).map(toId));
           }
         }
       });
