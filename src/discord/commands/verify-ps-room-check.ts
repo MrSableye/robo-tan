@@ -8,25 +8,25 @@ export const createVerifyPsRoomCheckCommand = (
   showdownClient: PrettyClient,
 ) => {
   const commandHandler = async (message: Message, commandText: string) => {
-    const userRoomPromise = new Promise<string[]>((resolve) => {
-      showdownClient.eventEmitter.on('queryResponse', (queryResponseEvent) => {
-        const  { responseType, response } = queryResponseEvent.event[0];
-
-        if (responseType && responseType === 'userdetails' && response) {
-          const { rooms } = JSON.parse(response);
-
-          if (rooms) {
-            resolve(Object.keys(rooms).map(toId));
-          }
-        }
-      });
-    });
-
     const newShowdownId = toId(commandText);
 
-    await showdownClient.send(`|/cmd userdetails ${newShowdownId}`);
+    const [userRooms] = await Promise.all([
+      showdownClient.receive(
+        'queryResponse',
+        60 * 1000,
+        (queryResponseEvent) => {
+          const { responseType, response } = queryResponseEvent.event[0];
+          const { id, rooms } = JSON.parse(response);
 
-    const userRooms = await userRoomPromise;
+          return rooms && responseType === 'userdetails' && id === newShowdownId;
+        },
+      ).then((queryResponseEvent) => {
+        const { rooms } = JSON.parse(queryResponseEvent.event[0].response);
+
+        return Object.keys(rooms).map(toId);
+      }),
+      showdownClient.send(`|/cmd userdetails ${newShowdownId}`),
+    ]);
 
     const user = await showdownRoomVerificationClient.verifyChallengeAndUpdateUser(
       userRooms,
