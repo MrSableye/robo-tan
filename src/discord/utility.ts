@@ -94,7 +94,7 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
     );
   }
 
-  if (user.battles && user.champBattles && user.lastUpdated) {
+  if (user.battles !== undefined && user.champBattles !== undefined && user.lastUpdated) {
     const formattedDate = moment(user.lastUpdated).subtract(2, 'weeks').format('MMM Do, YYYY');
 
     userEmbed.addField(
