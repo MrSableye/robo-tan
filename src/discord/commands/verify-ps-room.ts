@@ -3,7 +3,7 @@ import { VerificationClient } from '../../verification';
 import { Challenge } from '../../store/challenge';
 
 const createVerificationEmbed = (challenge: Challenge<string[]>) => new MessageEmbed()
-  .setDescription('In order to associate your Pokémon Showdown account with your Discord account, you will have to join the following rooms and then use the !verifyps-room-check command. You cannot be in other rooms')
+  .setDescription('In order to associate your Pokémon Showdown account with your Discord account, you will have to join the following rooms and then use the `!verifyps-room-check <showdownId>` command. You cannot be in other rooms')
   .addField('Message', `\`\`\`${challenge.secret.map((room) => `/join ${room}`).join('\n')}\`\`\``);
 
 export const createVerifyPsRoomCommand = (
@@ -23,7 +23,7 @@ export const createVerifyPsRoomCommand = (
     help: [
       {
         name: '!verifyps-room',
-        value: 'Starts the verification process for associating a Discord user with their Pokémon Showdown user. This method will ask you to join a specific set of rooms and is only recommended if you or Robo-tan is locked. Otherwise, use !verifyps',
+        value: 'Starts the verification process for associating a Discord user with their Pokémon Showdown user. This method will ask you to join a specific set of rooms and is only recommended if you or Robo-tan is locked. Otherwise, use `!verifyps`',
         inline: false,
       },
     ],

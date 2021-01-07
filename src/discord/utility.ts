@@ -78,7 +78,7 @@ export const createUserEmbed = (discordUser: DiscordUser, user: User) => {
   const userEmbed = new MessageEmbed()
     .setAuthor(author, avatar);
 
-  if (user.showdownIds && user.showdownIds.length > 1) {
+  if (user.showdownIds && user.showdownIds.length > 0) {
     userEmbed.addField(
       'Showdown',
       user.showdownIds.map(
