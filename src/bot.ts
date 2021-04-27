@@ -120,8 +120,8 @@ export const createBot = async (settings: BotSettings) => {
   } = JSON.parse(roomQueryResponse.event[0].response);
 
   const rooms = [
-    ...officialChatRooms,
-    ...chatRooms,
+    ...(officialChatRooms || []),
+    ...(chatRooms || []),
   ].map((chatRoom: { title: string }) => toId(chatRoom.title));
 
   const showdownRoomVerificationClient = new StringListVerificationClient(
