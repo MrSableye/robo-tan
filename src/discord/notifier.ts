@@ -45,7 +45,7 @@ const createBattlePostEmbed = (thread: Post, post: Post, battleRoom: string) => 
   )
   .addFields({
     name: 'Dogars Link (preferred)',
-    value: `[https://play.dogars.ga/${battleRoom}](https://play.dogars.ga/${battleRoom})`,
+    value: `[https://play.dogars.org/${battleRoom}](https://play.dogars.org/${battleRoom})`,
   })
   .addFields({
     name: 'Showdown Link (not recommended)',

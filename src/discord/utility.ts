@@ -48,12 +48,12 @@ export const createSetEmbed = (set?: DogarsSet): MessageEmbed => {
     params.set('hash', set.hash);
   }
 
-  const authorLink = `https://dogars.ga/results?${params.toString()}`;
+  const authorLink = `https://dogars.org/results?${params.toString()}`;
 
   let embed = new MessageEmbed()
     .setTitle(set.name || set.species)
-    .setAuthor(author, 'https://dogars.ga/img/icons/favicon-32x32.png', (set.creator || set.hash) ? authorLink : undefined)
-    .setURL(`https://dogars.ga/set/${set.id}`)
+    .setAuthor(author, 'https://dogars.org/img/icons/favicon-32x32.png', (set.creator || set.hash) ? authorLink : undefined)
+    .setURL(`https://dogars.org/set/${set.id}`)
     .setThumbnail(getPokemonImage(set, false))
     .setTimestamp(set.date_added)
     .setFooter(`Format: ${set.format}`);
@@ -63,7 +63,7 @@ export const createSetEmbed = (set?: DogarsSet): MessageEmbed => {
   }
 
   if (set.has_custom === 1) {
-    embed = embed.setImage(`https://dogars.ga/api/custom/${set.id}`);
+    embed = embed.setImage(`https://dogars.org/api/custom/${set.id}`);
   }
 
   embed = embed.addField('Set', `\`\`\`${setText}\`\`\``);

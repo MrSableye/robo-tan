@@ -19,7 +19,7 @@ describe('advancedSearchSets', () => {
     expect(advancedSearchPage?.[0]).toEqual(1);
     expect(advancedSearchPage?.[1]).toEqual({ testKey: 'testValue' });
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.ga/api/search',
+      'https://dogars.org/api/search',
       { params: { creator: 'me' } },
     );
   });
@@ -31,7 +31,7 @@ describe('advancedSearchSets', () => {
 
     expect(advancedSearchPage).toBeUndefined();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.ga/api/search',
+      'https://dogars.org/api/search',
       { params: { creator: 'me' } },
     );
   });
@@ -45,7 +45,7 @@ describe('getSet', () => {
 
     expect(set).toBeDefined();
     expect(set).toEqual({ testKey: 'testValue' });
-    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.ga/api/sets/1');
+    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.org/api/sets/1');
   });
 
   it('Returns undefined when an error occurs', async () => {
@@ -54,7 +54,7 @@ describe('getSet', () => {
     const set = await getSet(1);
 
     expect(set).toBeUndefined();
-    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.ga/api/sets/1');
+    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.org/api/sets/1');
   });
 });
 
@@ -66,7 +66,7 @@ describe('getRandomSetId', () => {
 
     expect(setId).toBeDefined();
     expect(setId).toEqual(1);
-    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.ga/api/random');
+    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.org/api/random');
   });
 
   it('Returns undefined when an error occurs', async () => {
@@ -75,7 +75,7 @@ describe('getRandomSetId', () => {
     const setId = await getRandomSetId();
 
     expect(setId).toBeUndefined();
-    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.ga/api/random');
+    expect(mockedAxios.get).toHaveBeenCalledWith('https://dogars.org/api/random');
   });
 });
 
@@ -89,7 +89,7 @@ describe('searchSets', () => {
     expect(searchPage?.[0]).toEqual(1);
     expect(searchPage?.[1]).toEqual({ testKey: 'testValue' });
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.ga/api/search',
+      'https://dogars.org/api/search',
       { params: { q: 'test', page: 1 } },
     );
   });
@@ -101,7 +101,7 @@ describe('searchSets', () => {
 
     expect(searchPage).toBeUndefined();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.ga/api/search',
+      'https://dogars.org/api/search',
       { params: { q: 'test', page: 1 } },
     );
   });

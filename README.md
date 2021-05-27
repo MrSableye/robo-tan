@@ -3,7 +3,7 @@
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/showderp/dogars-discord-bot?style=for-the-badge)](https://hub.docker.com/r/showderp/dogars-discord-bot/builds)
 [![Docker Pulls](https://img.shields.io/docker/pulls/showderp/dogars-discord-bot?style=for-the-badge)](https://hub.docker.com/r/showderp/dogars-discord-bot)
 
-This bot provides basic commands for integrating with [dogars.ga](https://dogars.ga) as well as streaming battles to Discord similar to [showderp/battle-feed](https://github.com/showderp/battle-feed). Try `!help` in a server with it to get a list of commands.
+This bot provides basic commands for integrating with [dogars.org](https://dogars.org) as well as streaming battles to Discord similar to [showderp/battle-feed](https://github.com/showderp/battle-feed). Try `!help` in a server with it to get a list of commands.
 
 ## Development
 ### Prerequisites
