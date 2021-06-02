@@ -97,7 +97,7 @@ export const createBot = async (settings: BotSettings) => {
   dogarsChatClient.send(`|/trn ${settings.showdownSettings.username},0,sneed`);
 
   dogarsChatClient.eventEmitter.on('message', (messageEvent) => {
-    if (messageEvent.message.toLowerCase().includes('hi robo-tan')) {
+    if (messageEvent.message.toLowerCase().includes(`hi ${settings.showdownSettings.username}`)) {
       dogarsChatClient.send(`${messageEvent.room.substr(1)}|hi ${messageEvent.user.substr(1)}`);
     }
   });
