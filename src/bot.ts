@@ -20,6 +20,7 @@ import {
 } from './showdown';
 import { createShowderpMonitor } from './showderp';
 import { BotSettings } from './settings';
+import { DogarsChatClient } from './dogars';
 import {
   createBattlePostHandler,
   createChallengePostHandler,
@@ -88,6 +89,25 @@ export const createBot = async (settings: BotSettings) => {
   const showdownClient = new PrettyClient({
     debug: true,
     debugPrefix: '[SHOWDOWN CLIENT]',
+  });
+
+  const dogarsChatClient = new DogarsChatClient({});
+  await dogarsChatClient.connect();
+
+  dogarsChatClient.send(`|/trn ${settings.showdownSettings.username},0,sneed`);
+
+  dogarsChatClient.eventEmitter.on('message', (messageEvent) => {
+    if (messageEvent.message.toLowerCase().includes('hi robo-tan')) {
+      dogarsChatClient.send(`${messageEvent.room.substr(1)}|hi ${messageEvent.user.substr(1)}`);
+    }
+  });
+
+  showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+    dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
+  });
+
+  showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
+    dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
   });
 
   const {

@@ -1,5 +1,6 @@
 import { setToString } from './utility';
 import { DogarsSet } from './types';
+import { DogarsChatClient } from './chat';
 import {
   advancedSearchSets,
   getRandomSetId,
@@ -9,6 +10,7 @@ import {
 
 export {
   advancedSearchSets,
+  DogarsChatClient,
   DogarsSet,
   getSet,
   getRandomSetId,
