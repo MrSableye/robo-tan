@@ -97,16 +97,18 @@ export const createBot = async (settings: BotSettings) => {
   dogarsChatClient.send(`|/trn ${settings.showdownSettings.username},0,sneed`);
 
   dogarsChatClient.eventEmitter.on('message', (messageEvent) => {
-    if (messageEvent.message.toLowerCase().includes(`hi ${settings.showdownSettings.username}`)) {
+    if (toId(messageEvent.message).includes(toId(`hi ${settings.showdownSettings.username}`))) {
       dogarsChatClient.send(`${messageEvent.room}|hi ${messageEvent.user}`);
     }
   });
 
   showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+    console.log(`Joining Dogars chat for ${initializeRoomEvent.room}`);
     dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
   });
 
   showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
+    console.log(`Joining Dogars chat for ${deinitializeRoomEvent.room}`);
     dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
   });
 
