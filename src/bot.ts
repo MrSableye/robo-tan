@@ -156,21 +156,28 @@ export const createBot = async (settings: BotSettings) => {
 
   battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
   battleEventEmitter.on('end', async ({ roomName, room }) => {
-    try {
-      await Promise.all(
-        Object.entries(room.participants)
-          .map(([showdownId, { isChamp }]) => battleStore.upsertBattle({
-            showdownId,
-            battleRoom: roomName,
-            isChamp,
-            battleStartTime: room.start,
-          })),
-      );
+    setTimeout(async () => {
+      try {
+        await Promise.all(
+          Object.entries(room.participants)
+            .map(([showdownId, player]) => {
+              const result = player.isChamp ? player.result : undefined;
 
-      console.log(`Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
-    } catch (error) {
-      console.log(`Error storing participants in battle ${roomName}: ${error}`);
-    }
+              return battleStore.upsertBattle({
+                showdownId,
+                battleRoom: roomName,
+                isChamp: player.isChamp,
+                result,
+                battleStartTime: room.start,
+              });
+            }),
+        );
+
+        console.log(`Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
+      } catch (error) {
+        console.log(`Error storing participants in battle ${roomName}: ${error}`);
+      }
+    }, 10000);
   });
 
   discordClient.on('ready', async () => {

@@ -3,6 +3,7 @@ export interface Battle {
   battleRoom: string;
   isChamp: boolean;
   battleStartTime: number;
+  result?: 'win' | 'tie' | 'loss';
 }
 
 export interface BattleStore {

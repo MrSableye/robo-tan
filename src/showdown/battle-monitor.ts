@@ -3,9 +3,9 @@ import { PrettyClient } from '@showderp/pokemon-showdown-ts';
 import { BattlePostEvent } from '../discord/notifier';
 import { toId } from './utility';
 
-interface Player {
-  isChamp: boolean;
-}
+type MatchResult = 'win' | 'tie' | 'loss';
+
+type Player = { isChamp: false } | { isChamp: true, result: MatchResult };
 
 interface Room {
   name: string;
@@ -47,7 +47,8 @@ export const createBattleMonitor = (client: PrettyClient) => {
         roomName: deinitializeRoomEvent.room,
         room,
       });
-      delete rooms[deinitializeRoomEvent.room];
+
+      setTimeout(() => delete rooms[deinitializeRoomEvent.room], 10000);
     }
   }));
 
@@ -58,6 +59,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
+        result: 'loss',
         ...room.participants[showdownId],
         isChamp: true,
       };
@@ -71,20 +73,41 @@ export const createBattleMonitor = (client: PrettyClient) => {
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
+        isChamp: false,
         ...room.participants[showdownId],
-        isChamp: room.participants[showdownId]?.isChamp || false,
       };
     }
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('win', (winEvent) => {
-    if (rooms[winEvent.room]) {
+    const room = rooms[winEvent.room];
+    if (room) {
+      const { username } = winEvent.event[0].user;
+      const showdownId = toId(username);
+
+      room.participants[showdownId] = {
+        ...room.participants[showdownId],
+        isChamp: true,
+        result: 'win',
+      };
+
       client.send(`${winEvent.room}|/leave`);
     }
   }));
 
   unsubscribeFunctions.push(eventEmitter.on('tie', (tieEvent) => {
-    if (rooms[tieEvent.room]) {
+    const room = rooms[tieEvent.room];
+    if (room) {
+      Object.entries(room.participants).forEach(([playerId, player]) => {
+        if (player.isChamp) {
+          room.participants[playerId] = {
+            ...player,
+            isChamp: true,
+            result: 'tie',
+          };
+        }
+      });
+
       client.send(`${tieEvent.room}|/leave`);
     }
   }));
