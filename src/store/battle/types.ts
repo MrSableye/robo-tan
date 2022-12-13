@@ -4,6 +4,7 @@ export interface Battle {
   isChamp: boolean;
   battleStartTime: number;
   result?: 'win' | 'tie' | 'loss';
+  team?: string[];
 }
 
 export interface BattleStore {

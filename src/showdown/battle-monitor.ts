@@ -5,13 +5,16 @@ import { toId } from './utility';
 
 type MatchResult = 'win' | 'tie' | 'loss';
 
-type Player = { isChamp: false } | { isChamp: true, result: MatchResult };
+type Player = { player: string; isChamp: false } | { player: string; isChamp: true, result: MatchResult };
 
 interface Room {
   name: string;
   start: number;
   participants: {
     [showdownId: string]: Player;
+  };
+  teams: {
+    [player: string]: string[];
   };
 }
 
@@ -35,6 +38,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
       name: initializeRoomEvent.room,
       start: new Date().getTime(),
       participants: {},
+      teams: {},
     };
     battleEventEmitter.emit('start', { roomName: initializeRoomEvent.room });
   }));
@@ -62,6 +66,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
         result: 'loss',
         ...room.participants[showdownId],
         isChamp: true,
+        player: playerEvent.event[0].player,
       };
     }
   }));
@@ -73,6 +78,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
+        player: 'p1',
         isChamp: false,
         ...room.participants[showdownId],
       };
@@ -86,6 +92,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
+        player: 'p1',
         ...room.participants[showdownId],
         isChamp: true,
         result: 'win',
@@ -109,6 +116,19 @@ export const createBattleMonitor = (client: PrettyClient) => {
       });
 
       client.send(`${tieEvent.room}|/leave`);
+    }
+  }));
+
+  unsubscribeFunctions.push(eventEmitter.on('teamPreview', (teamPreviewEvent) => {
+    const room = rooms[teamPreviewEvent.room];
+    if (room) {
+      const player = teamPreviewEvent.event[0].player;
+      const species = teamPreviewEvent.event[0].pokemonDetails.species;
+
+      room.teams[player] = [
+        ...room.teams[player] || [],
+        toId(species),
+      ];
     }
   }));
 

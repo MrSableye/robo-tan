@@ -169,6 +169,7 @@ export const createBot = async (settings: BotSettings) => {
                 isChamp: player.isChamp,
                 result,
                 battleStartTime: room.start,
+                team: room.teams[player.player],
               });
             }),
         );
