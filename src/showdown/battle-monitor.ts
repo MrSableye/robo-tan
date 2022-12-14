@@ -5,7 +5,7 @@ import { toId } from './utility';
 
 type MatchResult = 'win' | 'tie' | 'loss';
 
-type BasePlayer = { name: string, avatar: string; player: string; };
+type BasePlayer = { name: string, avatar?: string; player: string; };
 type Player = (BasePlayer & { isChamp: false }) | (BasePlayer & { isChamp: true, result: MatchResult });
 
 interface Room {
@@ -84,7 +84,6 @@ export const createBattleMonitor = (client: PrettyClient) => {
         player: 'p1',
         isChamp: false,
         name: showdownId,
-        avatar: '1',
         ...room.participants[showdownId],
       };
     }
@@ -99,7 +98,6 @@ export const createBattleMonitor = (client: PrettyClient) => {
       room.participants[showdownId] = {
         player: 'p1',
         name: showdownId,
-        avatar: '1',
         ...room.participants[showdownId],
         isChamp: true,
         result: 'win',
