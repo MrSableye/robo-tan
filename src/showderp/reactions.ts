@@ -79,7 +79,7 @@ export const createReactor = (
     if (userId === ownId) return;
 
     const matchedGreeting = greetings.find((greeting) => {
-      return messageId.startsWith(toId(greeting));
+      return messageId === (toId(greeting) + ownId);
     });
 
     if (matchedGreeting) {
