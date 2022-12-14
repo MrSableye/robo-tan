@@ -45,17 +45,47 @@ const stealthRockSynonyms = [
   'Zetetic Zircon'
 ];
 
+const greetings = [
+  'hi',
+  'hello',
+  'hejsan',
+  'hej',
+  'ni hao',
+  'anyong haseyo',
+  'konnichiwa',
+  'tjenare',
+  'gday',
+];
+
 const randomSynonym = () => {
   return stealthRockSynonyms[Math.floor(Math.random() * stealthRockSynonyms.length)];
 };
 
 export const createReactor = (
+    username: string,
     client: PrettyClient,
     dogars: DogarsChatClient,
 ) => {
+  const ownId = toId(username);
   const { eventEmitter: showdownEventEmitter } = client;
+  const { eventEmitter: dogarsEventEmitter } = dogars;
   const rooms: Rooms = {};
   const unsubscribeFunctions: Emittery.UnsubscribeFn[] = [];
+
+  dogarsEventEmitter.on('message', ({ room, user, message }) => {
+    const userId = toId(user);
+    const messageId = toId(message);
+
+    if (userId === ownId) return;
+
+    const matchedGreeting = greetings.find((greeting) => {
+      return messageId.startsWith(toId(greeting));
+    });
+
+    if (matchedGreeting) {
+      dogars.send(`${room}|${matchedGreeting} ${user}!`);
+    }
+  });
 
   const react = (room: string, turn: TurnData) => {
     const messages: string[] = [];
@@ -72,7 +102,7 @@ export const createReactor = (
         messages.push('smogon handshake 🤝');
       } else if (stealthRockUsers.length === 1) {
         const firstUser = stealthRockUsers[0];
-        messages.push(`${firstUser} used ${randomSynonym()}`);
+        messages.push(`${firstUser} used **${randomSynonym()}**!`);
       }
     }
 
@@ -83,7 +113,7 @@ export const createReactor = (
     }
   };
 
-  showdownEventEmitter.on('turn', (turnEvent) => {
+  unsubscribeFunctions.push(showdownEventEmitter.on('turn', (turnEvent) => {
     const room = rooms[turnEvent.room];
 
     if (room) {
@@ -91,9 +121,9 @@ export const createReactor = (
       room.currentTurn = turn;
       room.turns[turn] = { critMons: new Set(), faintedMons: new Set(), movesUsed: {} };
     }
-  });
+  }));
 
-  showdownEventEmitter.on('upkeep', (upkeepEvent) => {
+  unsubscribeFunctions.push(showdownEventEmitter.on('upkeep', (upkeepEvent) => {
     const room = rooms[upkeepEvent.room];
 
     if (room) {
@@ -103,9 +133,9 @@ export const createReactor = (
         react(upkeepEvent.room, endedTurn);
       }
     }
-  });
+  }));
 
-  showdownEventEmitter.on('crit', (critEvent) => {
+  unsubscribeFunctions.push(showdownEventEmitter.on('crit', (critEvent) => {
     const room = rooms[critEvent.room];
 
     if (room) {
@@ -117,9 +147,9 @@ export const createReactor = (
         currentTurn.critMons.add(fullPosition);
       }
     }
-  });
+  }));
 
-  showdownEventEmitter.on('faint', (faintEvent) => {
+  unsubscribeFunctions.push(showdownEventEmitter.on('faint', (faintEvent) => {
     const room = rooms[faintEvent.room];
 
     if (room) {
@@ -131,9 +161,9 @@ export const createReactor = (
         currentTurn.faintedMons.add(fullPosition);
       }
     }
-  });
+  }));
 
-  showdownEventEmitter.on('move', (moveEvent) => {
+  unsubscribeFunctions.push(showdownEventEmitter.on('move', (moveEvent) => {
     const room = rooms[moveEvent.room];
 
     if (room) {
@@ -151,7 +181,7 @@ export const createReactor = (
         }
       }
     }
-  });
+  }));
 
   unsubscribeFunctions.push(showdownEventEmitter.on('initializeRoom', (initializeRoomEvent) => {
     rooms[initializeRoomEvent.room] = {

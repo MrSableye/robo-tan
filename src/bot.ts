@@ -82,7 +82,7 @@ export const createBot = async (settings: BotSettings) => {
     timeout: showderpMonitorTimeout,
     showderpMonitor,
   } = await createShowderpMonitor(
-    15 * 1000,
+    2 * 1000,
     configurationStore,
   );
 
@@ -95,12 +95,6 @@ export const createBot = async (settings: BotSettings) => {
   await dogarsChatClient.connect();
 
   dogarsChatClient.send(`|/trn ${settings.showdownSettings.username},0,sneed`);
-
-  // dogarsChatClient.eventEmitter.on('message', (messageEvent) => {
-  //   if (toId(messageEvent.message).includes(toId(`hi ${settings.showdownSettings.username}`))) {
-  //     dogarsChatClient.send(`${messageEvent.room}|hi ${messageEvent.user}`);
-  //   }
-  // });
 
   showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
     console.log(`Joining Dogars chat for ${initializeRoomEvent.room}`);
@@ -124,7 +118,7 @@ export const createBot = async (settings: BotSettings) => {
 
   const {
     unsubscribe: unsubscribeReactor,
-  } = createReactor(showdownClient, dogarsChatClient);
+  } = createReactor(settings.showdownSettings.username, showdownClient, dogarsChatClient);
 
   await showdownClient.connect();
   await showdownClient.login(
