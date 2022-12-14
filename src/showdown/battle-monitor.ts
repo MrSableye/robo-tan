@@ -5,7 +5,7 @@ import { toId } from './utility';
 
 type MatchResult = 'win' | 'tie' | 'loss';
 
-type Player = { player: string; isChamp: false } | { player: string; isChamp: true, result: MatchResult };
+type Player = { name: string, player: string; isChamp: false } | { name: string, player: string; isChamp: true, result: MatchResult };
 
 interface Room {
   name: string;
@@ -67,6 +67,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
         ...room.participants[showdownId],
         isChamp: true,
         player: playerEvent.event[0].player,
+        name: playerEvent.event[0].user.username,
       };
     }
   }));
@@ -80,6 +81,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
       room.participants[showdownId] = {
         player: 'p1',
         isChamp: false,
+        name: showdownId,
         ...room.participants[showdownId],
       };
     }
@@ -93,6 +95,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
 
       room.participants[showdownId] = {
         player: 'p1',
+        name: showdownId,
         ...room.participants[showdownId],
         isChamp: true,
         result: 'win',

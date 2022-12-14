@@ -1,5 +1,6 @@
 export interface Battle {
   showdownId: string;
+  showdownUsername?: string;
   battleRoom: string;
   isChamp: boolean;
   battleStartTime: number;

@@ -170,6 +170,7 @@ export const createBot = async (settings: BotSettings) => {
                 result,
                 battleStartTime: room.start,
                 team: room.teams[player.player],
+                showdownUsername: player.name,
               });
             }),
         );
