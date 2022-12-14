@@ -102,7 +102,8 @@ export const createBattleMonitor = (client: PrettyClient) => {
         result: 'win',
       };
 
-      client.send(`${winEvent.room}|/leave`);
+      client.send(`${winEvent.room}|/savereplay`);
+      setTimeout(() => client.send(`${winEvent.room}|/leave`), 20 * 60 * 1000);
     }
   }));
 
@@ -119,7 +120,8 @@ export const createBattleMonitor = (client: PrettyClient) => {
         }
       });
 
-      client.send(`${tieEvent.room}|/leave`);
+      client.send(`${tieEvent.room}|/savereplay`);
+      setTimeout(() => client.send(`${tieEvent.room}|/leave`), 20 * 60 * 1000);
     }
   }));
 

@@ -154,7 +154,17 @@ export const createBot = async (settings: BotSettings) => {
     3,
   );
 
-  battleEventEmitter.on('start', ({ roomName }) => console.log(`Battle started: ${roomName}`));
+  let previousRoom: string;
+
+  battleEventEmitter.on('start', ({ roomName }) => {
+    console.log(`Battle started: ${roomName}`);
+
+    if (previousRoom) {
+      dogarsChatClient.send(`${previousRoom}|https://play.dogars.org/${roomName}`);
+    }
+
+    previousRoom = roomName;
+  });
   battleEventEmitter.on('end', async ({ roomName, room }) => {
     setTimeout(async () => {
       try {
