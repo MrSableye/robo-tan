@@ -18,7 +18,7 @@ import {
   createVerificationMonitor,
   toId,
 } from './showdown';
-import { createShowderpMonitor } from './showderp';
+import { createReactor, createShowderpMonitor } from './showderp';
 import { BotSettings } from './settings';
 import { DogarsChatClient } from './dogars';
 import {
@@ -121,6 +121,10 @@ export const createBot = async (settings: BotSettings) => {
   const {
     unsubscribe: unsubscribeVerificationMonitor,
   } = createVerificationMonitor(showdownClient, showdownVerificationClient);
+
+  const {
+    unsubscribe: unsubscribeReactor,
+  } = createReactor(showdownClient, dogarsChatClient);
 
   await showdownClient.connect();
   await showdownClient.login(
@@ -234,6 +238,7 @@ export const createBot = async (settings: BotSettings) => {
     clearInterval(showderpMonitorTimeout);
     unsubscribeBattleMonitor();
     unsubscribeVerificationMonitor();
+    unsubscribeReactor();
     showdownClient.disconnect();
   });
 
