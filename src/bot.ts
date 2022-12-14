@@ -171,6 +171,7 @@ export const createBot = async (settings: BotSettings) => {
                 battleStartTime: room.start,
                 team: room.teams[player.player],
                 showdownUsername: player.name,
+                avatar: player.avatar,
               });
             }),
         );

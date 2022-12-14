@@ -6,6 +6,7 @@ export interface Battle {
   battleStartTime: number;
   result?: 'win' | 'tie' | 'loss';
   team?: string[];
+  avatar?: string;
 }
 
 export interface BattleStore {
