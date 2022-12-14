@@ -162,6 +162,7 @@ export const createBot = async (settings: BotSettings) => {
           Object.entries(room.participants)
             .map(([showdownId, player]) => {
               const result = player.isChamp ? player.result : undefined;
+              const team = player.isChamp ? room.teams[player.player] : undefined;
 
               return battleStore.upsertBattle({
                 showdownId,
@@ -169,7 +170,7 @@ export const createBot = async (settings: BotSettings) => {
                 isChamp: player.isChamp,
                 result,
                 battleStartTime: room.start,
-                team: room.teams[player.player],
+                team: team,
                 showdownUsername: player.name,
                 avatar: player.avatar,
               });
