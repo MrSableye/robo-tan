@@ -97,27 +97,24 @@ export const createShowderpMonitor = async (
             .replace(/<wbr>/gm, '')
             .replace(/<(?:.|\n)*?>/gm, ' ');
 
+          const rooms: Record<string, boolean> = {};
+
           battleLinkPatterns.forEach((battleLinkPattern) => {
             const matches = [...comment.matchAll(battleLinkPattern)];
 
-            const rooms = matches.reduce((currentRooms: { [key: string]: boolean }, match) => {
+            matches.forEach((match) => {
               if (match?.groups?.room) {
-                return {
-                  ...currentRooms,
-                  [match?.groups?.room]: true,
-                };
+                rooms[(match?.groups?.room || '')] = true;
               }
-
-              return currentRooms;
-            }, {});
-
-            Object.keys(rooms).forEach((room) => {
-              showderpMonitor.emit('battlePost', [
-                showderpThread,
-                showderpPost,
-                room,
-              ]);
             });
+          });
+
+          Object.keys(rooms).forEach((room) => {
+            showderpMonitor.emit('battlePost', [
+              showderpThread,
+              showderpPost,
+              room,
+            ]);
           });
         }
 
