@@ -9,9 +9,14 @@ interface TurnData {
   movesUsed: Record<string, string[]>,
 };
 
+interface User {
+
+}
+
 type Room = {
   currentTurn: number;
   turns: Record<number, TurnData>;
+  numberGreetings: number;
 };
 
 type Rooms = Record<string, Room>;
@@ -78,12 +83,17 @@ export const createReactor = (
 
     if (userId === ownId) return;
 
-    const matchedGreeting = greetings.find((greeting) => {
-      return messageId === (toId(greeting) + ownId);
-    });
+    const roomData = rooms[room];
 
-    if (matchedGreeting) {
-      dogars.send(`${room}|${matchedGreeting} ${user}!`);
+    if (roomData && roomData.numberGreetings < 5) {
+      const matchedGreeting = greetings.find((greeting) => {
+        return messageId === (toId(greeting) + ownId);
+      });
+  
+      if (matchedGreeting) {
+        dogars.send(`${room}|${matchedGreeting} ${user}!`);
+        roomData.numberGreetings++;
+      }
     }
   });
 
@@ -187,6 +197,7 @@ export const createReactor = (
     rooms[initializeRoomEvent.room] = {
       currentTurn: 0,
       turns: { [0]: { critMons: new Set(), faintedMons: new Set(), movesUsed: {} }},
+      numberGreetings: 0,
     };
   }));
 
