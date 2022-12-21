@@ -12,6 +12,7 @@ const battleLinkPatterns: RegExp[] = [
   /(https?:\/\/)?play.dogars.org\/(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
   /(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
 ];
+const incompleteLinkPattern = /(?<room>gen[A-Za-b0-9]+-[0-9]+(-[A-Za-z0-9]+pw)?)/gi;
 
 const isShowderpThread = (post: Post) => {
   const comment = (post.com || '')
@@ -107,6 +108,13 @@ export const createShowderpMonitor = async (
                 rooms[(match?.groups?.room || '')] = true;
               }
             });
+          });
+
+          const matches = [...comment.matchAll(incompleteLinkPattern)];
+          matches.forEach((match) => {
+            if (match?.groups?.room) {
+              rooms[`battle-${match?.groups?.room || ''}`] = true;
+            }
           });
 
           Object.keys(rooms).forEach((room) => {
