@@ -96,7 +96,8 @@ export const createShowderpMonitor = async (
         if (showderpPost.trip && showderpPost.com) {
           const comment = showderpPost.com
             .replace(/<wbr>/gm, '')
-            .replace(/<(?:.|\n)*?>/gm, ' ');
+            .replace(/<(?:.|\n)*?>/gm, '')
+            .replace(/\s/gm, '');
 
           const rooms: Record<string, boolean> = {};
 
