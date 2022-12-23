@@ -52,7 +52,7 @@ export const createBot = async (settings: BotSettings) => {
 
   const dogarsChatClient = new DogarsChatClient({});
 
-  logExecution(
+  await logExecution(
     INITIALIZATION_LOG_PREFIX,
     'Connecting to Dogars',
     'Connected to Dogars',
@@ -60,8 +60,17 @@ export const createBot = async (settings: BotSettings) => {
   );
 
   const showdownUnsubscribeFunctions = [
+    showdownClient.lifecycleEmitter.on('connect', () => {
+      if (settings.showdown.avatar) {
+        showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
+      }
+    }),
     showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
-      dogarsChatClient.send(`|/trn ${settings.showdown.username},${settings.showdown.avatar || '0'},${loginAssertion}`);
+      if (settings.showdown.avatar) {
+        showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
+      }
+
+      dogarsChatClient.send(`|/trn ${settings.showdown.username},0,${loginAssertion}`);
     }),
     showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
       log('DOGARS', `Joining Dogars chat for ${initializeRoomEvent.room}`);
@@ -83,14 +92,14 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeReactor,
   } = createReactor(settings.showdown.username, showdownClient, dogarsChatClient);
 
-  logExecution(
+  await logExecution(
     INITIALIZATION_LOG_PREFIX,
     'Connecting to Showdown',
     'Connected to Showdown',
     async () => await showdownClient.connect(),
   );
 
-  logExecution(
+  await logExecution(
     INITIALIZATION_LOG_PREFIX,
     'Logging in to Showdown',
     'Logged in to Showdown',
@@ -173,7 +182,7 @@ export const createBot = async (settings: BotSettings) => {
     showdownUnsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
   });
 
-  logExecution(
+  await logExecution(
     INITIALIZATION_LOG_PREFIX,
     'Connecting to Discord',
     'Connected to Discord',
