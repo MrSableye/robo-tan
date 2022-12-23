@@ -14,7 +14,7 @@ import { DogarsChatClient } from './dogars/index.js';
 import { createBattlePostHandler, createThreadHandler } from './discord/index.js';
 
 export const createBot = async (settings: BotSettings) => {
-  const dynamoDBClient = new AWS.DynamoDB.DocumentClient();
+  const dynamoDBClient = new AWS.DynamoDB.DocumentClient({});
 
   const battleStore = new DynamoDBBattleStore(
     dynamoDBClient,
@@ -85,6 +85,7 @@ export const createBot = async (settings: BotSettings) => {
   await showdownClient.login(
     settings.showdown.username,
     settings.showdown.password,
+    settings.showdown.avatar,
   );
   console.timeEnd('Logged into Showdown');
 

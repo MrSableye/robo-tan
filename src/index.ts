@@ -1,4 +1,7 @@
 import { createBot } from './bot.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 console.time('Created bot');
 createBot({

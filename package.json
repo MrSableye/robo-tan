@@ -39,6 +39,7 @@
     "aws-sdk": "^2.1281.0",
     "axios": "^1.2.1",
     "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
     "emittery": "^1.0.1",
     "moment": "^2.29.1",
     "node-cache": "^5.1.2",
