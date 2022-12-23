@@ -17,175 +17,179 @@ import { log, logExecution } from './logger.js';
 const INITIALIZATION_LOG_PREFIX = 'INITIALIZATION';
 
 export const createBot = async (settings: BotSettings) => {
-  const dynamoDBClient = new AWS.DynamoDB.DocumentClient({});
+  try {
+    const dynamoDBClient = new AWS.DynamoDB.DocumentClient({});
 
-  const battleStore = new DynamoDBBattleStore(
-    dynamoDBClient,
-    {
-      battleTableName: settings.database.battleTable,
-    },
-  );
-
-  const dynamoDBConfigurationStore = new DynamoDBConfigurationStore(
-    dynamoDBClient,
-    settings.database.configurationTable,
-  );
-  const configurationStore = new OrderedFailThroughStore([
-    new InMemoryConfigurationStore(),
-    dynamoDBConfigurationStore,
-  ]);
-
-  const discordClient = new Discord.Client({ intents: [] });
-
-  const {
-    timeout: showderpMonitorTimeout,
-    showderpMonitor,
-  } = await createShowderpMonitor(
-    2 * 1000,
-    configurationStore,
-  );
-
-  const showdownClient = new ManagedShowdownClient({
-    debug: true,
-    debugPrefix: '[SHOWDOWN CLIENT]',
-  });
-
-  const dogarsChatClient = new DogarsChatClient({});
-
-  await logExecution(
-    INITIALIZATION_LOG_PREFIX,
-    'Connecting to Dogars',
-    'Connected to Dogars',
-    async () => await dogarsChatClient.connect(),
-  );
-
-  const showdownUnsubscribeFunctions = [
-    showdownClient.lifecycleEmitter.on('connect', () => {
-      if (settings.showdown.avatar) {
-        showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
-      }
-    }),
-    showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
-      if (settings.showdown.avatar) {
-        showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
-      }
-
-      dogarsChatClient.send(`|/trn ${settings.showdown.username},0,${loginAssertion}`);
-    }),
-    showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-      log('DOGARS', `Joining Dogars chat for ${initializeRoomEvent.room}`);
-      dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
-    }),
-    showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-      log('DOGARS', `Joining Dogars chat for ${deinitializeRoomEvent.room}`);
-      dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
-    }),
-  ];
-
-  const {
-    battleEventEmitter,
-    handleBattlePost,
-    unsubscribe: unsubscribeBattleMonitor,
-  } = createBattleMonitor(showdownClient);
-
-  const {
-    unsubscribe: unsubscribeReactor,
-  } = createReactor(settings.showdown.username, showdownClient, dogarsChatClient);
-
-  await logExecution(
-    INITIALIZATION_LOG_PREFIX,
-    'Connecting to Showdown',
-    'Connected to Showdown',
-    async () => await showdownClient.connect(),
-  );
-
-  await logExecution(
-    INITIALIZATION_LOG_PREFIX,
-    'Logging in to Showdown',
-    'Logged in to Showdown',
-    async () => await showdownClient.login(
-      settings.showdown.username,
-      settings.showdown.password,
-      settings.showdown.avatar,
-    ),
-  );
-
-  let previousRoom: string;
-
-  battleEventEmitter.on('start', ({ roomName }) => {
-    log('BATTLE', `Battle started: ${roomName}`);
-
-    if (previousRoom) {
-      dogarsChatClient.send(`${previousRoom}|https://play.dogars.org/${roomName}`);
-    }
-
-    previousRoom = roomName;
-  });
-
-  battleEventEmitter.on('end', async ({ roomName, room }) => {
-    log('BATTLE', `Battle ended: ${roomName}`);
-
-    setTimeout(async () => {
-      try {
-        await Promise.all(
-          Object.entries(room.participants)
-            .map(([showdownId, player]) => {
-              const result = player.isChamp ? player.result : undefined;
-              const team = player.isChamp ? room.teams[player.player] : undefined;
-
-              return battleStore.upsertBattle({
-                showdownId,
-                battleRoom: roomName,
-                isChamp: player.isChamp,
-                result,
-                battleStartTime: room.start,
-                team,
-                showdownUsername: player.name,
-                avatar: player.avatar,
-              });
-            }),
-        );
-
-        log('DATABASE', `Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
-      } catch (error) {
-        log('DATABASE', `Error storing participants in battle ${roomName}: ${error}`);
-      }
-    }, 10000);
-  });
-
-  discordClient.on('ready', async () => {
-    log('DISCORD', `Successfully logged in as ${discordClient.user?.tag}`);
-
-    showderpMonitor.on(
-      'thread',
-      createThreadHandler(discordClient, settings.discord.channelId),
+    const battleStore = new DynamoDBBattleStore(
+      dynamoDBClient,
+      {
+        battleTableName: settings.database.battleTable,
+      },
     );
 
-    showderpMonitor.on(
-      'battlePost',
-      createBattlePostHandler(discordClient, settings.discord.channelId),
+    const dynamoDBConfigurationStore = new DynamoDBConfigurationStore(
+      dynamoDBClient,
+      settings.database.configurationTable,
+    );
+    const configurationStore = new OrderedFailThroughStore([
+      new InMemoryConfigurationStore(),
+      dynamoDBConfigurationStore,
+    ]);
+
+    const discordClient = new Discord.Client({ intents: [] });
+
+    const {
+      timeout: showderpMonitorTimeout,
+      showderpMonitor,
+    } = await createShowderpMonitor(
+      2 * 1000,
+      configurationStore,
     );
 
-    showderpMonitor.on(
-      'battlePost',
+    const showdownClient = new ManagedShowdownClient({
+      debug: true,
+      debugPrefix: '[SHOWDOWN CLIENT]',
+    });
+
+    const dogarsChatClient = new DogarsChatClient({});
+
+    await logExecution(
+      INITIALIZATION_LOG_PREFIX,
+      'Connecting to Dogars',
+      'Connected to Dogars',
+      async () => await dogarsChatClient.connect(),
+    );
+
+    const showdownUnsubscribeFunctions = [
+      showdownClient.lifecycleEmitter.on('connect', () => {
+        if (settings.showdown.avatar) {
+          showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
+        }
+      }),
+      showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
+        if (settings.showdown.avatar) {
+          showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
+        }
+
+        dogarsChatClient.send(`|/trn ${settings.showdown.username},0,${loginAssertion}`);
+      }),
+      showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+        log('DOGARS', `Joining Dogars chat for ${initializeRoomEvent.room}`);
+        dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
+      }),
+      showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
+        log('DOGARS', `Joining Dogars chat for ${deinitializeRoomEvent.room}`);
+        dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
+      }),
+    ];
+
+    const {
+      battleEventEmitter,
       handleBattlePost,
+      unsubscribe: unsubscribeBattleMonitor,
+    } = createBattleMonitor(showdownClient);
+
+    const {
+      unsubscribe: unsubscribeReactor,
+    } = createReactor(settings.showdown.username, showdownClient, dogarsChatClient);
+
+    await logExecution(
+      INITIALIZATION_LOG_PREFIX,
+      'Connecting to Showdown',
+      'Connected to Showdown',
+      async () => await showdownClient.connect(),
     );
-  });
 
-  discordClient.on('error', console.error);
+    await logExecution(
+      INITIALIZATION_LOG_PREFIX,
+      'Logging in to Showdown',
+      'Logged in to Showdown',
+      async () => await showdownClient.login(
+        settings.showdown.username,
+        settings.showdown.password,
+        settings.showdown.avatar,
+      ),
+    );
 
-  discordClient.on('disconnect', () => {
-    clearInterval(showderpMonitorTimeout);
-    unsubscribeBattleMonitor();
-    unsubscribeReactor();
-    showdownClient.disconnect();
-    showdownUnsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
-  });
+    let previousRoom: string;
 
-  await logExecution(
-    INITIALIZATION_LOG_PREFIX,
-    'Connecting to Discord',
-    'Connected to Discord',
-    async () => await discordClient.login(settings.discord.token),
-  );
+    battleEventEmitter.on('start', ({ roomName }) => {
+      log('BATTLE', `Battle started: ${roomName}`);
+
+      if (previousRoom) {
+        dogarsChatClient.send(`${previousRoom}|https://play.dogars.org/${roomName}`);
+      }
+
+      previousRoom = roomName;
+    });
+
+    battleEventEmitter.on('end', async ({ roomName, room }) => {
+      log('BATTLE', `Battle ended: ${roomName}`);
+
+      setTimeout(async () => {
+        try {
+          await Promise.all(
+            Object.entries(room.participants)
+              .map(([showdownId, player]) => {
+                const result = player.isChamp ? player.result : undefined;
+                const team = player.isChamp ? room.teams[player.player] : undefined;
+
+                return battleStore.upsertBattle({
+                  showdownId,
+                  battleRoom: roomName,
+                  isChamp: player.isChamp,
+                  result,
+                  battleStartTime: room.start,
+                  team,
+                  showdownUsername: player.name,
+                  avatar: player.avatar,
+                });
+              }),
+          );
+
+          log('DATABASE', `Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
+        } catch (error) {
+          log('DATABASE', `Error storing participants in battle ${roomName}: ${error}`);
+        }
+      }, 10000);
+    });
+
+    discordClient.on('ready', async () => {
+      log('DISCORD', `Successfully logged in as ${discordClient.user?.tag}`);
+
+      showderpMonitor.on(
+        'thread',
+        createThreadHandler(discordClient, settings.discord.channelId),
+      );
+
+      showderpMonitor.on(
+        'battlePost',
+        createBattlePostHandler(discordClient, settings.discord.channelId),
+      );
+
+      showderpMonitor.on(
+        'battlePost',
+        handleBattlePost,
+      );
+    });
+
+    discordClient.on('error', console.error);
+
+    discordClient.on('disconnect', () => {
+      clearInterval(showderpMonitorTimeout);
+      unsubscribeBattleMonitor();
+      unsubscribeReactor();
+      showdownClient.disconnect();
+      showdownUnsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
+    });
+
+    await logExecution(
+      INITIALIZATION_LOG_PREFIX,
+      'Connecting to Discord',
+      'Connected to Discord',
+      async () => await discordClient.login(settings.discord.token),
+    );
+  } catch (error) {
+    log(INITIALIZATION_LOG_PREFIX, (error as Error)?.message, true);
+  }
 };

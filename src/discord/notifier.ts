@@ -1,6 +1,6 @@
 import { Client, EmbedBuilder } from 'discord.js';
 import { Post } from '../types.js';
-import { logExecution } from '../logger.js';
+import { log, logExecution } from '../logger.js';
 
 const DISCORD_LOG_PREFIX = 'DISCORD';
 
@@ -20,29 +20,33 @@ const createThreadEmbed = (thread: Post) => {
 };
 
 export const createThreadHandler = (client: Client, channelId: string) => async (thread: Post) => {
-  const channel = await logExecution(
-    DISCORD_LOG_PREFIX,
-    `Retrieving channel ${channelId}`,
-    `Retrieved channel ${channelId}`,
-    async () => await client.channels.fetch(channelId),
-  );
-
-  if (channel && channel.isTextBased()) {
-    const threadEmbed = createThreadEmbed(thread);
-
-    const message = await logExecution(
+  try {
+    const channel = await logExecution(
       DISCORD_LOG_PREFIX,
-      `Sending message to channel ${channelId}`,
-      `Sent message to channel ${channelId}`,
-      async () => await channel.send({ embeds: [threadEmbed] }),
+      `Retrieving channel ${channelId}`,
+      `Retrieved channel ${channelId}`,
+      async () => await client.channels.fetch(channelId),
     );
 
-    await logExecution(
-      DISCORD_LOG_PREFIX,
-      `Crossposting message ${message.id}`,
-      `Crossposted message ${message.id}`,
-      async () => await message.crosspost(),
-    );
+    if (channel && channel.isTextBased()) {
+      const threadEmbed = createThreadEmbed(thread);
+
+      const message = await logExecution(
+        DISCORD_LOG_PREFIX,
+        `Sending message to channel ${channelId}`,
+        `Sent message to channel ${channelId}`,
+        async () => await channel.send({ embeds: [threadEmbed] }),
+      );
+
+      await logExecution(
+        DISCORD_LOG_PREFIX,
+        `Crossposting message ${message.id}`,
+        `Crossposted message ${message.id}`,
+        async () => await message.crosspost(),
+      );
+    }
+  } catch (error) {
+    log(DISCORD_LOG_PREFIX, (error as Error)?.message, true);
   }
 };
 
@@ -68,34 +72,38 @@ export type BattlePostEvent = [Post, Post, string]; // TODO: Export this in a be
 export const createBattlePostHandler = (
   client: Client, channelId: string,
 ) => async (battlePostEvent: BattlePostEvent) => {
-  const [thread, battlePost, battleRoom] = battlePostEvent;
+  try {
+    const [thread, battlePost, battleRoom] = battlePostEvent;
 
-  const channel = await logExecution(
-    DISCORD_LOG_PREFIX,
-    `Retrieving channel ${channelId}`,
-    `Retrieved channel ${channelId}`,
-    async () => await client.channels.fetch(channelId),
-  );
-
-  if (channel && channel.isTextBased()) {
-    const battlePostEmbed = createBattlePostEmbed(
-      thread,
-      battlePost,
-      battleRoom,
-    );
-
-    const message = await logExecution(
+    const channel = await logExecution(
       DISCORD_LOG_PREFIX,
-      `Sending message to channel ${channelId}`,
-      `Sent message to channel ${channelId}`,
-      async () => await channel.send({ embeds: [battlePostEmbed] }),
+      `Retrieving channel ${channelId}`,
+      `Retrieved channel ${channelId}`,
+      async () => await client.channels.fetch(channelId),
     );
 
-    await logExecution(
-      DISCORD_LOG_PREFIX,
-      `Crossposting message ${message.id}`,
-      `Crossposted message ${message.id}`,
-      async () => await message.crosspost(),
-    );
+    if (channel && channel.isTextBased()) {
+      const battlePostEmbed = createBattlePostEmbed(
+        thread,
+        battlePost,
+        battleRoom,
+      );
+
+      const message = await logExecution(
+        DISCORD_LOG_PREFIX,
+        `Sending message to channel ${channelId}`,
+        `Sent message to channel ${channelId}`,
+        async () => await channel.send({ embeds: [battlePostEmbed] }),
+      );
+
+      await logExecution(
+        DISCORD_LOG_PREFIX,
+        `Crossposting message ${message.id}`,
+        `Crossposted message ${message.id}`,
+        async () => await message.crosspost(),
+      );
+    }
+  } catch (error) {
+    log(DISCORD_LOG_PREFIX, (error as Error)?.message, true);
   }
 };

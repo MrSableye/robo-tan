@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { DogarsPage, DogarsSet } from '../types.js';
+import { log } from '../logger.js';
+
+const DOGARS_API_LOG_PREFIX = 'DOGARS_API';
 
 export const getSet = async (id: number): Promise<DogarsSet | undefined> => {
   try {
@@ -8,7 +11,8 @@ export const getSet = async (id: number): Promise<DogarsSet | undefined> => {
       headers: { 'Accept-Encoding': '*' },
     })).data;
   } catch (error) {
-    // TODO: Log error
+    log(DOGARS_API_LOG_PREFIX, (error as Error)?.message, true);
+
     return undefined;
   }
 };
@@ -20,7 +24,8 @@ export const getRandomSetId = async () => {
       headers: { 'Accept-Encoding': '*' },
     })).data;
   } catch (error) {
-    // TODO: Log error
+    log(DOGARS_API_LOG_PREFIX, (error as Error)?.message, true);
+
     return undefined;
   }
 };
@@ -33,7 +38,8 @@ export const searchSets = async (query: string): Promise<DogarsPage | undefined>
       headers: { 'Accept-Encoding': '*' },
     })).data;
   } catch (error) {
-    // TODO: Log error
+    log(DOGARS_API_LOG_PREFIX, (error as Error)?.message, true);
+
     return undefined;
   }
 };
@@ -54,7 +60,8 @@ export const advancedSearchSets = async (
       headers: { 'Accept-Encoding': '*' },
     })).data;
   } catch (error) {
-    // TODO: Log error
+    log(DOGARS_API_LOG_PREFIX, (error as Error)?.message, true);
+
     return undefined;
   }
 };

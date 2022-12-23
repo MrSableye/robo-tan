@@ -13,8 +13,14 @@ const createExecutionId = (length = 6) => {
   return result;
 };
 
-export const log = (prefix: string, message: string) => {
-  console.log(`[${prefix}] ${message}`);
+export const log = (prefix: string, message: string, error = false) => {
+  const fullMessage = `[${prefix}] ${message}`;
+
+  if (error) {
+    return console.error(fullMessage);
+  }
+
+  return console.log(fullMessage);
 };
 
 export const logExecution = async <T>(
