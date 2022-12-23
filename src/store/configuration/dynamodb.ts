@@ -1,4 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
+import AWS from 'aws-sdk';
 import {
   ConfigurationStore,
   GlobalConfiguration,
@@ -10,11 +10,11 @@ import {
 } from './types.js';
 
 export class DynamoDBConfigurationStore implements ConfigurationStore {
-  client: DynamoDB.DocumentClient;
+  client: AWS.DynamoDB.DocumentClient;
 
   tableName: string;
 
-  constructor(client: DynamoDB.DocumentClient, tableName: string) {
+  constructor(client: AWS.DynamoDB.DocumentClient, tableName: string) {
     this.client = client;
     this.tableName = tableName;
   }

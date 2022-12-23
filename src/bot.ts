@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { DynamoDB } from 'aws-sdk';
+import AWS from 'aws-sdk';
 import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import {
   DynamoDBConfigurationStore,
@@ -14,7 +14,7 @@ import { DogarsChatClient } from './dogars/index.js';
 import { createBattlePostHandler, createThreadHandler } from './discord/index.js';
 
 export const createBot = async (settings: BotSettings) => {
-  const dynamoDBClient = new DynamoDB.DocumentClient();
+  const dynamoDBClient = new AWS.DynamoDB.DocumentClient();
 
   const battleStore = new DynamoDBBattleStore(
     dynamoDBClient,

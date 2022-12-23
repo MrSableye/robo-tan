@@ -1,4 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
+import AWS from 'aws-sdk';
 import {
   Battle,
   BattleStore,
@@ -9,12 +9,12 @@ interface DynamoDBBattleStoreConfiguration {
 }
 
 export class DynamoDBBattleStore implements BattleStore {
-  client: DynamoDB.DocumentClient;
+  client: AWS.DynamoDB.DocumentClient;
 
   configuration: DynamoDBBattleStoreConfiguration;
 
   constructor(
-    client: DynamoDB.DocumentClient,
+    client: AWS.DynamoDB.DocumentClient,
     configuration: DynamoDBBattleStoreConfiguration,
   ) {
     this.client = client;
@@ -48,7 +48,7 @@ export class DynamoDBBattleStore implements BattleStore {
   }
 
   async deleteBattle(showdownId: string, battleRoom: string): Promise<boolean> {
-    const parameters: DynamoDB.DocumentClient.DeleteItemInput = {
+    const parameters: AWS.DynamoDB.DocumentClient.DeleteItemInput = {
       TableName: this.configuration.battleTableName,
       Key: { showdownId, battleRoom },
     };
