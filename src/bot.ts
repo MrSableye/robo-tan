@@ -12,6 +12,9 @@ import { createReactor, createShowderpMonitor } from './showderp/index.js';
 import { BotSettings } from './settings.js';
 import { DogarsChatClient } from './dogars/index.js';
 import { createBattlePostHandler, createThreadHandler } from './discord/index.js';
+import { log, logExecution } from './logger.js';
+
+const INITIALIZATION_LOG_PREFIX = 'INITIALIZATION';
 
 export const createBot = async (settings: BotSettings) => {
   const dynamoDBClient = new AWS.DynamoDB.DocumentClient({});
@@ -49,20 +52,23 @@ export const createBot = async (settings: BotSettings) => {
 
   const dogarsChatClient = new DogarsChatClient({});
 
-  console.time('Connected to Dogars');
-  await dogarsChatClient.connect();
-  console.timeEnd('Connected to Dogars');
+  logExecution(
+    INITIALIZATION_LOG_PREFIX,
+    'Connecting to Dogars',
+    'Connected to Dogars',
+    async () => await dogarsChatClient.connect(),
+  );
 
   const showdownUnsubscribeFunctions = [
     showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
       dogarsChatClient.send(`|/trn ${settings.showdown.username},${settings.showdown.avatar || '0'},${loginAssertion}`);
     }),
     showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-      console.log(`Joining Dogars chat for ${initializeRoomEvent.room}`);
+      log('DOGARS', `Joining Dogars chat for ${initializeRoomEvent.room}`);
       dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
     }),
     showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-      console.log(`Joining Dogars chat for ${deinitializeRoomEvent.room}`);
+      log('DOGARS', `Joining Dogars chat for ${deinitializeRoomEvent.room}`);
       dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
     }),
   ];
@@ -77,22 +83,28 @@ export const createBot = async (settings: BotSettings) => {
     unsubscribe: unsubscribeReactor,
   } = createReactor(settings.showdown.username, showdownClient, dogarsChatClient);
 
-  console.time('Connected to Showdown');
-  await showdownClient.connect();
-  console.timeEnd('Connected to Showdown');
-
-  console.time('Logged into Showdown');
-  await showdownClient.login(
-    settings.showdown.username,
-    settings.showdown.password,
-    settings.showdown.avatar,
+  logExecution(
+    INITIALIZATION_LOG_PREFIX,
+    'Connecting to Showdown',
+    'Connected to Showdown',
+    async () => await showdownClient.connect(),
   );
-  console.timeEnd('Logged into Showdown');
+
+  logExecution(
+    INITIALIZATION_LOG_PREFIX,
+    'Logging in to Showdown',
+    'Logged in to Showdown',
+    async () => await showdownClient.login(
+      settings.showdown.username,
+      settings.showdown.password,
+      settings.showdown.avatar,
+    ),
+  );
 
   let previousRoom: string;
 
   battleEventEmitter.on('start', ({ roomName }) => {
-    console.log(`Battle started: ${roomName}`);
+    log('BATTLE', `Battle started: ${roomName}`);
 
     if (previousRoom) {
       dogarsChatClient.send(`${previousRoom}|https://play.dogars.org/${roomName}`);
@@ -102,6 +114,8 @@ export const createBot = async (settings: BotSettings) => {
   });
 
   battleEventEmitter.on('end', async ({ roomName, room }) => {
+    log('BATTLE', `Battle ended: ${roomName}`);
+
     setTimeout(async () => {
       try {
         await Promise.all(
@@ -123,15 +137,15 @@ export const createBot = async (settings: BotSettings) => {
             }),
         );
 
-        console.log(`Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
+        log('DATABASE', `Successfully stored ${Object.keys(room.participants).length} participants for battle ${roomName}`);
       } catch (error) {
-        console.log(`Error storing participants in battle ${roomName}: ${error}`);
+        log('DATABASE', `Error storing participants in battle ${roomName}: ${error}`);
       }
     }, 10000);
   });
 
   discordClient.on('ready', async () => {
-    console.log(`Successfully logged in as ${discordClient.user?.tag}`);
+    log('DISCORD', `Successfully logged in as ${discordClient.user?.tag}`);
 
     showderpMonitor.on(
       'thread',
@@ -159,7 +173,10 @@ export const createBot = async (settings: BotSettings) => {
     showdownUnsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
   });
 
-  console.time('Connected to Discord');
-  await discordClient.login(settings.discord.token);
-  console.timeEnd('Connected to Discord');
+  logExecution(
+    INITIALIZATION_LOG_PREFIX,
+    'Connecting to Discord',
+    'Connected to Discord',
+    async () => await discordClient.login(settings.discord.token),
+  );
 };

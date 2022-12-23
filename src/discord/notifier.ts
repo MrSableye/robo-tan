@@ -1,5 +1,8 @@
 import { Client, EmbedBuilder } from 'discord.js';
 import { Post } from '../types.js';
+import { logExecution } from '../logger.js';
+
+const DISCORD_LOG_PREFIX = 'DISCORD';
 
 const createThreadEmbed = (thread: Post) => {
   const embed = new EmbedBuilder()
@@ -17,20 +20,29 @@ const createThreadEmbed = (thread: Post) => {
 };
 
 export const createThreadHandler = (client: Client, channelId: string) => async (thread: Post) => {
-  console.time(`Retrieved Discord channel ${channelId}`);
-  const channel = await client.channels.fetch(channelId);
-  console.timeEnd(`Retrieved Discord channel ${channelId}`);
+  const channel = await logExecution(
+    DISCORD_LOG_PREFIX,
+    `Retrieving channel ${channelId}`,
+    `Retrieved channel ${channelId}`,
+    async () => await client.channels.fetch(channelId),
+  );
 
   if (channel && channel.isTextBased()) {
     const threadEmbed = createThreadEmbed(thread);
 
-    console.time(`Sent message to channel ${channelId}`);
-    const message = await channel.send({ embeds: [threadEmbed] });
-    console.timeEnd(`Sent message to channel ${channelId}`);
+    const message = await logExecution(
+      DISCORD_LOG_PREFIX,
+      `Sending message to channel ${channelId}`,
+      `Sent message to channel ${channelId}`,
+      async () => await channel.send({ embeds: [threadEmbed] }),
+    );
 
-    console.time(`Crossposted message ${message.id}`);
-    await message.crosspost();
-    console.timeEnd(`Crossposted message ${message.id}`);
+    await logExecution(
+      DISCORD_LOG_PREFIX,
+      `Crossposting message ${message.id}`,
+      `Crossposted message ${message.id}`,
+      async () => await message.crosspost(),
+    );
   }
 };
 
@@ -58,9 +70,12 @@ export const createBattlePostHandler = (
 ) => async (battlePostEvent: BattlePostEvent) => {
   const [thread, battlePost, battleRoom] = battlePostEvent;
 
-  console.time(`Retrieved Discord channel ${channelId}`);
-  const channel = await client.channels.fetch(channelId);
-  console.timeEnd(`Retrieved Discord channel ${channelId}`);
+  const channel = await logExecution(
+    DISCORD_LOG_PREFIX,
+    `Retrieving channel ${channelId}`,
+    `Retrieved channel ${channelId}`,
+    async () => await client.channels.fetch(channelId),
+  );
 
   if (channel && channel.isTextBased()) {
     const battlePostEmbed = createBattlePostEmbed(
@@ -69,12 +84,18 @@ export const createBattlePostHandler = (
       battleRoom,
     );
 
-    console.time(`Sent message to channel ${channelId}`);
-    const message = await channel.send({ embeds: [battlePostEmbed] });
-    console.timeEnd(`Sent message to channel ${channelId}`);
+    const message = await logExecution(
+      DISCORD_LOG_PREFIX,
+      `Sending message to channel ${channelId}`,
+      `Sent message to channel ${channelId}`,
+      async () => await channel.send({ embeds: [battlePostEmbed] }),
+    );
 
-    console.time(`Crossposted message ${message.id}`);
-    await message.crosspost();
-    console.timeEnd(`Crossposted message ${message.id}`);
+    await logExecution(
+      DISCORD_LOG_PREFIX,
+      `Crossposting message ${message.id}`,
+      `Crossposted message ${message.id}`,
+      async () => await message.crosspost(),
+    );
   }
 };
