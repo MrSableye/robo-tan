@@ -1,10 +1,7 @@
 import Emittery from 'emittery';
+import { Post } from '../types';
 import { ConfigurationStore } from '../store/configuration';
-import {
-  Post,
-  getCatalog,
-  getThread,
-} from './yotsuba';
+import { getCatalog, getThread } from './yotsuba';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga', 'dogars.org'];
 const battleLinkPatterns: RegExp[] = [
@@ -38,10 +35,9 @@ const getCurrentThreads = async (): Promise<Post[]> => {
     .filter((thread) => isShowderpThread(thread));
 };
 
-export type ShowderpMonitor = Emittery.Typed<{
+export type ShowderpMonitor = Emittery<{
   thread: Post,
   battlePost: [Post, Post, string],
-  challengePosts: Post[],
 }>;
 
 type ThreadPostsPair = [Post, Post[]];
@@ -51,10 +47,9 @@ export const createShowderpMonitor = async (
   frequency: number,
   configurationStore: ConfigurationStore,
 ) => {
-  const showderpMonitor: ShowderpMonitor = new Emittery.Typed<{
+  const showderpMonitor: ShowderpMonitor = new Emittery<{
     thread: Post,
     battlePost: [Post, Post, string],
-    challengePosts: Post[],
   }>();
 
   let lastExecutedTime: number | undefined = await configurationStore.getGlobalConfigurationValue('lastExecutedTime');
@@ -125,10 +120,6 @@ export const createShowderpMonitor = async (
               room,
             ]);
           });
-        }
-
-        if (showderpPost.trip && showderpPost.name && showderpPost.name.startsWith('VerifyUser')) {
-          showderpMonitor.emit('challengePosts', [showderpPost]);
         }
       }
     });

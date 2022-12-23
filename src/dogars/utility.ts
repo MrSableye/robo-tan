@@ -1,4 +1,4 @@
-import { DogarsSet } from './types';
+import { DogarsSet } from '../types';
 
 interface Stats {
   HP?: number;

@@ -1,23 +1,18 @@
 import { createBot } from './bot';
 
+console.time('Created bot');
 createBot({
-  discordSettings: {
+  discord: {
     token: process.env.TOKEN || '',
     channelId: process.env.CHANNEL_ID || '',
   },
-  databaseSettings: {
-    configurationTableName: 'Configuration',
-    userTableName: 'Users',
-    challengeTableName: 'Challenges',
-    battleTableName: 'Battles',
-    showdownIdIndexName: 'showdownId-index',
-    tripcodeIndexName: 'tripcode-index',
+  database: {
+    configurationTable: 'Configuration',
+    battleTable: 'Battles',
   },
-  showdownSettings: {
+  showdown: {
     username: process.env.SHOWDOWN_USERNAME || '',
     password: process.env.SHOWDOWN_PASSWORD || '',
+    avatar: process.env.SHOWDOWN_AVATAR,
   },
-  awsSettings: {
-    roleStepFunctionArn: process.env.ROLE_STEP_FUNCTION_ARN || '',
-  },
-});
+}).then(() => console.timeEnd('Created bot'));

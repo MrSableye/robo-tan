@@ -1,6 +1,5 @@
 import { Client, MessageEmbed } from 'discord.js';
-import { VerificationClient } from '../verification';
-import { Post } from '../showderp';
+import { Post } from '../types';
 
 const createThreadEmbed = (thread: Post) => {
   const messageEmbed = new MessageEmbed()
@@ -78,25 +77,4 @@ export const createBattlePostHandler = (
     await message.crosspost();
     console.timeEnd(`Crossposted message ${message.id}`);
   }
-};
-
-export const createChallengePostHandler = (
-  client: Client,
-  verificationClient: VerificationClient,
-) => async (challengePosts: Post[]) => {
-  challengePosts.map(async (challengePost) => {
-    const user = await verificationClient.verifyChallengeAndUpdateUser(
-      (challengePost.name || '').substr(10),
-      (userToUpdate) => ({
-        ...userToUpdate,
-        tripcode: challengePost.trip || '',
-      }),
-    );
-
-    if (user) {
-      const discordUser = await client.users.fetch(user.discordId);
-
-      discordUser.send(`Successfully validated tripcode: ${challengePost.trip}`);
-    }
-  });
 };

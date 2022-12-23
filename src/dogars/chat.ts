@@ -48,7 +48,7 @@ export class DogarsChatClient {
 
   private socket?: WebSocket;
 
-  readonly eventEmitter: Emittery.Typed<ChatEvents>;
+  readonly eventEmitter: Emittery<ChatEvents>;
 
   constructor(options: Partial<DogarsChatClientOptions>) {
     this.options = {
@@ -56,7 +56,7 @@ export class DogarsChatClient {
       ...options,
     };
     this.queue = createMessageQueue();
-    this.eventEmitter = new Emittery.Typed<ChatEvents>();
+    this.eventEmitter = new Emittery<ChatEvents>();
   }
 
   private handleData(data: string) {

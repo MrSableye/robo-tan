@@ -34,3 +34,27 @@ export interface DogarsSet {
   spd_iv?: number;
   spe_iv?: number;
 }
+
+export interface CatalogPage {
+  threads: CatalogThread[];
+}
+
+export interface Thread {
+  posts: Post[];
+}
+
+export interface Post {
+  no: number;
+  name?: string;
+  time: number;
+  trip?: string;
+  sub?: string;
+  com?: string;
+  tim?: number;
+  ext?: string;
+}
+
+export interface CatalogThread extends Post {
+  last_replies: Post[];
+  bumplimit?: number;
+}

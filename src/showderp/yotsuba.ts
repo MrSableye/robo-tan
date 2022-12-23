@@ -1,28 +1,5 @@
 import axios from 'axios';
-
-interface CatalogPage {
-  threads: CatalogThread[];
-}
-
-interface Thread {
-  posts: Post[];
-}
-
-export interface Post {
-  no: number;
-  name?: string;
-  time: number;
-  trip?: string;
-  sub?: string;
-  com?: string;
-  tim?: number;
-  ext?: string;
-}
-
-export interface CatalogThread extends Post {
-  last_replies: Post[];
-  bumplimit?: number;
-}
+import { CatalogPage, Thread } from '../types';
 
 export const getCatalog = async (board: string) => {
   console.time(`Retrieved /${board}/ catalog`);

@@ -1,9 +1,8 @@
-# showderp/dogars-discord-bot
-[![Travis (.org)](https://img.shields.io/travis/showderp/dogars-discord-bot?style=for-the-badge)](https://travis-ci.org/github/showderp/dogars-discord-bot)
+# Robo-tan
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/showderp/dogars-discord-bot?style=for-the-badge)](https://hub.docker.com/r/showderp/dogars-discord-bot/builds)
 [![Docker Pulls](https://img.shields.io/docker/pulls/showderp/dogars-discord-bot?style=for-the-badge)](https://hub.docker.com/r/showderp/dogars-discord-bot)
 
-This bot provides basic commands for integrating with [dogars.org](https://dogars.org) as well as streaming battles to Discord similar to [showderp/battle-feed](https://github.com/showderp/battle-feed). Try `!help` in a server with it to get a list of commands.
+This bot tracks and interacts with Showderp battles on /vp/'s Showderp thread.
 
 ## Development
 ### Prerequisites
@@ -14,28 +13,26 @@ This bot provides basic commands for integrating with [dogars.org](https://dogar
 #### NPM Scripts
 - `npm run build`: Compiles all of the TypeScript files and places the compiled JavaScript files in `dist/`
 - `npm run lint`: Lints the TypeScript files for style
-- `npm run lint-fix`: Lints the TypeScript files for style and fixes any issues that can be automatically fixed
 - `npm run start`: Builds and runs the application
 - `npm run test`: Runs Jest unit tests
 
 #### Docker Commands
 - `docker build -t showderp/dogars-discord-bot .`: Builds a local Docker image of the bot
-- `docker run -d -e TOKEN=<TOKEN> -e CHANNEL_ID showderp/dogars-discord-bot`: Runs a Docker container with the bot image
+- Run the Docker container with the bot image:
+```
+    docker run -d
+    -e TOKEN=<DISCORD BOT TOKEN>
+    -e CHANNEL_ID=<DISCORD CHANNEL ID>
+    -e SHOWDOWN_USER=<SHOWDOWN USER NAME>
+    -e SHOWDOWN_PASSWORD=<SHOWDOWN USER NAME>
+    -e SHOWDOWN_AVATAR=<SHOWDOWN USER AVATAR>
+    showderp/dogars-discord-bot
+```
 
 ## Deploying/Running
 ### Environment Variables
 - `TOKEN`: The Discord bot token associated with your Discord application
 - `CHANNEL_ID`: The channel to send battle updates to.
-
-### Common Environments
-#### With Docker
-Create a Docker container with the `TOKEN` and `CHANNEL_ID` environment variables and the `showderp/dogars-discord/bot` Docker image.
-
-##### Example
-```docker run -d -e TOKEN=<TOKEN> -e CHANNEL_ID showderp/dogars-discord-bot```
-
-#### Standalone
-Execute `dist/index.js` with Node.js with the `TOKEN` and `CHANNEL_ID` environment variables.
-
-##### Example
-```TOKEN=<TOKEN> CHANNEL_ID=<CHANNEL ID> node dist/index.js```
+- `SHOWDOWN_USER`: The Showdown username to login as
+- `SHOWDOWN_PASSWORD`: The Showdown password to use to login
+- `SHOWDOWN_AVATAR`: (Optional) The avatar to use for the Showdown user

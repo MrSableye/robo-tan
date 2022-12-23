@@ -1,78 +1,34 @@
 import Discord from 'discord.js';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { PrettyClient } from '@showderp/pokemon-showdown-ts';
-import {
-  StringVerificationClient,
-  StringListVerificationClient,
-} from './verification';
-import { DynamoDBUserStore } from './store/user';
+import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
   OrderedFailThroughStore,
 } from './store/configuration';
-import { ChallengeType, DynamoDBChallengeStore } from './store/challenge';
 import { DynamoDBBattleStore } from './store/battle';
-import {
-  createBattleMonitor,
-  createVerificationMonitor,
-  toId,
-} from './showdown';
+import { createBattleMonitor } from './showdown';
 import { createReactor, createShowderpMonitor } from './showderp';
 import { BotSettings } from './settings';
 import { DogarsChatClient } from './dogars';
-import {
-  createBattlePostHandler,
-  createChallengePostHandler,
-  createMessageHandler,
-  createThreadHandler,
-} from './discord';
+import { createBattlePostHandler, createThreadHandler } from './discord';
 
 export const createBot = async (settings: BotSettings) => {
   const dynamoDBClient = new DynamoDB.DocumentClient();
 
-  const challengeStore = new DynamoDBChallengeStore(
-    dynamoDBClient,
-    {
-      challengeTableName: settings.databaseSettings.challengeTableName,
-    },
-  );
-
-  const userStore = new DynamoDBUserStore(
-    dynamoDBClient,
-    {
-      userTableName: settings.databaseSettings.userTableName,
-      showdownIdIndexName: settings.databaseSettings.showdownIdIndexName,
-      tripcodeIndexName: settings.databaseSettings.tripcodeIndexName,
-    },
-  );
-
-  const showdownVerificationClient = new StringVerificationClient(
-    ChallengeType.SHOWDOWN,
-    challengeStore,
-    userStore,
-  );
-
-  const yotsubaVerificationClient = new StringVerificationClient(
-    ChallengeType.YOTSUBA,
-    challengeStore,
-    userStore,
-  );
-
   const battleStore = new DynamoDBBattleStore(
     dynamoDBClient,
     {
-      battleTableName: settings.databaseSettings.battleTableName,
+      battleTableName: settings.database.battleTable,
     },
   );
 
   const dynamoDBConfigurationStore = new DynamoDBConfigurationStore(
     dynamoDBClient,
-    settings.databaseSettings.configurationTableName,
+    settings.database.configurationTable,
   );
-  const inMemoryConfigurationStore = new InMemoryConfigurationStore();
   const configurationStore = new OrderedFailThroughStore([
-    inMemoryConfigurationStore,
+    new InMemoryConfigurationStore(),
     dynamoDBConfigurationStore,
   ]);
 
@@ -86,71 +42,51 @@ export const createBot = async (settings: BotSettings) => {
     configurationStore,
   );
 
-  const showdownClient = new PrettyClient({
+  const showdownClient = new ManagedShowdownClient({
     debug: true,
     debugPrefix: '[SHOWDOWN CLIENT]',
   });
 
   const dogarsChatClient = new DogarsChatClient({});
+
+  console.time('Connected to Dogars');
   await dogarsChatClient.connect();
+  console.timeEnd('Connected to Dogars');
 
-  dogarsChatClient.send(`|/trn ${settings.showdownSettings.username},0,sneed`);
-
-  showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-    console.log(`Joining Dogars chat for ${initializeRoomEvent.room}`);
-    dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
-  });
-
-  showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-    console.log(`Joining Dogars chat for ${deinitializeRoomEvent.room}`);
-    dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
-  });
+  const showdownUnsubscribeFunctions = [
+    showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
+      dogarsChatClient.send(`|/trn ${settings.showdown.username},${settings.showdown.avatar || '0'},${loginAssertion}`);
+    }),
+    showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+      console.log(`Joining Dogars chat for ${initializeRoomEvent.room}`);
+      dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
+    }),
+    showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
+      console.log(`Joining Dogars chat for ${deinitializeRoomEvent.room}`);
+      dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
+    }),
+  ];
 
   const {
     battleEventEmitter,
-    battlePostHandler,
+    handleBattlePost,
     unsubscribe: unsubscribeBattleMonitor,
   } = createBattleMonitor(showdownClient);
 
   const {
-    unsubscribe: unsubscribeVerificationMonitor,
-  } = createVerificationMonitor(showdownClient, showdownVerificationClient);
-
-  const {
     unsubscribe: unsubscribeReactor,
-  } = createReactor(settings.showdownSettings.username, showdownClient, dogarsChatClient);
+  } = createReactor(settings.showdown.username, showdownClient, dogarsChatClient);
 
+  console.time('Connected to Showdown');
   await showdownClient.connect();
+  console.timeEnd('Connected to Showdown');
+
+  console.time('Logged into Showdown');
   await showdownClient.login(
-    settings.showdownSettings.username,
-    settings.showdownSettings.password,
+    settings.showdown.username,
+    settings.showdown.password,
   );
-
-  const [roomQueryResponse] = await Promise.all([
-    showdownClient.receive('queryResponse', 10000, (queryResponseEvent) => {
-      const { responseType } = queryResponseEvent.event[0];
-      return responseType === 'rooms';
-    }),
-    showdownClient.send('|/cmd rooms'),
-  ]);
-
-  const {
-    official: officialChatRooms,
-    chat: chatRooms,
-  } = JSON.parse(roomQueryResponse.event[0].response);
-
-  const rooms = [
-    ...(officialChatRooms || []),
-    ...(chatRooms || []),
-  ].map((chatRoom: { title: string }) => toId(chatRoom.title));
-
-  const showdownRoomVerificationClient = new StringListVerificationClient(
-    ChallengeType.SHOWDOWN_ROOM,
-    challengeStore,
-    userStore,
-    rooms,
-    3,
-  );
+  console.timeEnd('Logged into Showdown');
 
   let previousRoom: string;
 
@@ -163,6 +99,7 @@ export const createBot = async (settings: BotSettings) => {
 
     previousRoom = roomName;
   });
+
   battleEventEmitter.on('end', async ({ roomName, room }) => {
     setTimeout(async () => {
       try {
@@ -178,7 +115,7 @@ export const createBot = async (settings: BotSettings) => {
                 isChamp: player.isChamp,
                 result,
                 battleStartTime: room.start,
-                team: team,
+                team,
                 showdownUsername: player.name,
                 avatar: player.avatar,
               });
@@ -197,44 +134,31 @@ export const createBot = async (settings: BotSettings) => {
 
     showderpMonitor.on(
       'thread',
-      createThreadHandler(discordClient, settings.discordSettings.channelId),
+      createThreadHandler(discordClient, settings.discord.channelId),
     );
 
     showderpMonitor.on(
       'battlePost',
-      createBattlePostHandler(discordClient, settings.discordSettings.channelId),
-    );
-
-    showderpMonitor.on(
-      'challengePosts',
-      createChallengePostHandler(discordClient, yotsubaVerificationClient),
+      createBattlePostHandler(discordClient, settings.discord.channelId),
     );
 
     showderpMonitor.on(
       'battlePost',
-      battlePostHandler,
+      handleBattlePost,
     );
   });
-
-  discordClient.on('message', createMessageHandler(
-    settings,
-    configurationStore,
-    showdownVerificationClient,
-    yotsubaVerificationClient,
-    showdownRoomVerificationClient,
-    showdownClient,
-    userStore,
-  ));
 
   discordClient.on('error', console.error);
 
   discordClient.on('disconnect', () => {
     clearInterval(showderpMonitorTimeout);
     unsubscribeBattleMonitor();
-    unsubscribeVerificationMonitor();
     unsubscribeReactor();
     showdownClient.disconnect();
+    showdownUnsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
   });
 
-  discordClient.login(settings.discordSettings.token);
+  console.time('Connected to Discord');
+  await discordClient.login(settings.discord.token);
+  console.timeEnd('Connected to Discord');
 };

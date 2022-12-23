@@ -1,22 +1,15 @@
 export interface BotSettings {
-  discordSettings: {
+  discord: {
     token: string;
     channelId: string;
   };
-  databaseSettings: {
-    configurationTableName: string;
-    challengeTableName: string;
-    userTableName: string;
-    battleTableName: string;
-    showdownIdIndexName: string;
-    tripcodeIndexName: string;
+  database: {
+    configurationTable: string;
+    battleTable: string;
   };
-  showdownSettings: {
+  showdown: {
     username: string;
     password: string;
     avatar?: string;
   };
-  awsSettings: {
-    roleStepFunctionArn: string;
-  }
 }

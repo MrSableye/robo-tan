@@ -1,16 +1,12 @@
-import Emittery from 'emittery';
-import { PrettyClient } from '@showderp/pokemon-showdown-ts';
-import { DogarsChatClient } from '../dogars';
+import { UnsubscribeFunction } from 'emittery';
+import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import { toId } from '../showdown';
+import { DogarsChatClient } from '../dogars';
 
 interface TurnData {
   critMons: Set<string>,
   faintedMons: Set<string>,
   movesUsed: Record<string, string[]>,
-};
-
-interface User {
-
 }
 
 type Room = {
@@ -47,7 +43,7 @@ const stealthRockSynonyms = [
   'Wily Wiluite', 'Wicked Whetstone',
   'Xenophobic Xenophyllite',
   'Yucky Yolk',
-  'Zetetic Zircon'
+  'Zetetic Zircon',
 ];
 
 const greetings = [
@@ -60,42 +56,23 @@ const greetings = [
   'konnichiwa',
   'tjenare',
   'gday',
+  'hola',
 ];
 
-const randomSynonym = () => {
-  return stealthRockSynonyms[Math.floor(Math.random() * stealthRockSynonyms.length)];
-};
+const randomSynonym = () => stealthRockSynonyms[
+  Math.floor(Math.random() * stealthRockSynonyms.length)
+];
 
 export const createReactor = (
-    username: string,
-    client: PrettyClient,
-    dogars: DogarsChatClient,
+  username: string,
+  client: ManagedShowdownClient,
+  dogars: DogarsChatClient,
 ) => {
   const ownId = toId(username);
   const { eventEmitter: showdownEventEmitter } = client;
   const { eventEmitter: dogarsEventEmitter } = dogars;
   const rooms: Rooms = {};
-  const unsubscribeFunctions: Emittery.UnsubscribeFn[] = [];
-
-  dogarsEventEmitter.on('message', ({ room, user, message }) => {
-    const userId = toId(user);
-    const messageId = toId(message);
-
-    if (userId === ownId) return;
-
-    const roomData = rooms[room];
-
-    if (roomData && roomData.numberGreetings < 5) {
-      const matchedGreeting = greetings.find((greeting) => {
-        return messageId === (toId(greeting) + ownId);
-      });
-  
-      if (matchedGreeting) {
-        dogars.send(`${room}|${matchedGreeting} ${user}!`);
-        roomData.numberGreetings++;
-      }
-    }
-  });
+  const unsubscribeFunctions: UnsubscribeFunction[] = [];
 
   const react = (room: string, turn: TurnData) => {
     const messages: string[] = [];
@@ -106,8 +83,8 @@ export const createReactor = (
       }
     });
 
-    if (turn.movesUsed['stealthrock']) {
-      const stealthRockUsers = turn.movesUsed['stealthrock'];
+    if (turn.movesUsed.stealthrock) {
+      const stealthRockUsers = turn.movesUsed.stealthrock;
       if (stealthRockUsers.length > 1) {
         messages.push('smogon handshake 🤝');
       } else if (stealthRockUsers.length === 1) {
@@ -122,6 +99,24 @@ export const createReactor = (
       dogars.send(`${room}|${firstMessage}`);
     }
   };
+
+  unsubscribeFunctions.push(dogarsEventEmitter.on('message', ({ room, user, message }) => {
+    const userId = toId(user);
+    const messageId = toId(message);
+
+    if (userId === ownId) return;
+
+    const roomData = rooms[room];
+
+    if (roomData && roomData.numberGreetings < 5) {
+      const matchedGreeting = greetings.find((greeting) => messageId === (toId(greeting) + ownId));
+
+      if (matchedGreeting) {
+        dogars.send(`${room}|${matchedGreeting} ${user}!`);
+        roomData.numberGreetings += 1;
+      }
+    }
+  }));
 
   unsubscribeFunctions.push(showdownEventEmitter.on('turn', (turnEvent) => {
     const room = rooms[turnEvent.room];
@@ -196,7 +191,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('initializeRoom', (initializeRoomEvent) => {
     rooms[initializeRoomEvent.room] = {
       currentTurn: 0,
-      turns: { [0]: { critMons: new Set(), faintedMons: new Set(), movesUsed: {} }},
+      turns: { 0: { critMons: new Set(), faintedMons: new Set(), movesUsed: {} } },
       numberGreetings: 0,
     };
   }));
@@ -204,7 +199,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
     const room = rooms[deinitializeRoomEvent.room];
 
-    if (room) {  
+    if (room) {
       delete rooms[deinitializeRoomEvent.room];
     }
   }));

@@ -1,12 +1,14 @@
-import Emittery from 'emittery';
-import { PrettyClient } from '@showderp/pokemon-showdown-ts';
+import Emittery, { UnsubscribeFunction } from 'emittery';
+import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import { BattlePostEvent } from '../discord/notifier';
 import { toId } from './utility';
 
 type MatchResult = 'win' | 'tie' | 'loss';
 
 type BasePlayer = { name: string, avatar?: string; };
-type Player = (BasePlayer & { isChamp: false }) | (BasePlayer & { isChamp: true; player: string; result: MatchResult });
+type NonChampPlayer = (BasePlayer & { isChamp: false });
+type ChampPlayer = (BasePlayer & { isChamp: true; player: string; result: MatchResult });
+type Player = NonChampPlayer | ChampPlayer;
 
 interface Room {
   name: string;
@@ -28,11 +30,11 @@ type BattleLifecycleEvents = {
   end: { roomName: string, room: Room },
 };
 
-export const createBattleMonitor = (client: PrettyClient) => {
+export const createBattleMonitor = (client: ManagedShowdownClient) => {
   const { eventEmitter } = client;
   const rooms: Rooms = {};
-  const unsubscribeFunctions: Emittery.UnsubscribeFn[] = [];
-  const battleEventEmitter = new Emittery.Typed<BattleLifecycleEvents>();
+  const unsubscribeFunctions: UnsubscribeFunction[] = [];
+  const battleEventEmitter = new Emittery<BattleLifecycleEvents>();
 
   unsubscribeFunctions.push(eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
     rooms[initializeRoomEvent.room] = {
@@ -128,8 +130,8 @@ export const createBattleMonitor = (client: PrettyClient) => {
   unsubscribeFunctions.push(eventEmitter.on('teamPreview', (teamPreviewEvent) => {
     const room = rooms[teamPreviewEvent.room];
     if (room) {
-      const player = teamPreviewEvent.event[0].player;
-      const species = teamPreviewEvent.event[0].pokemonDetails.species;
+      const { player } = teamPreviewEvent.event[0];
+      const { species } = teamPreviewEvent.event[0].pokemonDetails;
 
       room.teams[player] = [
         ...room.teams[player] || [],
@@ -138,36 +140,35 @@ export const createBattleMonitor = (client: PrettyClient) => {
     }
   }));
 
-  const battlePostHandler = async (battlePostEvent: BattlePostEvent) => {
+  const handleBattlePost = async (battlePostEvent: BattlePostEvent) => {
     let retries = 10; // TODO: Allow configuration
     const retryDelay = 30 * 1000; // TODO: Allow configuration
     const timeout = retries * 2 * retryDelay; // TODO: Allow configuration
     const [,, battleRoom] = battlePostEvent;
 
     await new Promise<void>((resolve, reject) => {
-      const promiseUnsubscribeFunctions: Emittery.UnsubscribeFn[] = [];
-
-      promiseUnsubscribeFunctions.push(eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-        if (initializeRoomEvent.room === battleRoom) {
-          promiseUnsubscribeFunctions.forEach(
-            (promiseUnsubscribeFunction) => promiseUnsubscribeFunction(),
-          );
-          resolve();
-        }
-      }));
-
-      promiseUnsubscribeFunctions.push(eventEmitter.on('errorInitializingRoom', (errorInitializingRoomEvent) => {
-        if (errorInitializingRoomEvent.room === battleRoom) {
-          const { errorType } = errorInitializingRoomEvent.event[0];
-
-          if (errorType === 'joinfailed' && retries > 0) {
-            retries -= 1;
-            setTimeout(() => client.send(`|/join ${battleRoom}`), retryDelay);
-          } else {
-            reject();
+      const promiseUnsubscribeFunctions: UnsubscribeFunction[] = [
+        eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
+          if (initializeRoomEvent.room === battleRoom) {
+            promiseUnsubscribeFunctions.forEach(
+              (promiseUnsubscribeFunction) => promiseUnsubscribeFunction(),
+            );
+            resolve();
           }
-        }
-      }));
+        }),
+        eventEmitter.on('errorInitializingRoom', (errorInitializingRoomEvent) => {
+          if (errorInitializingRoomEvent.room === battleRoom) {
+            const { errorType } = errorInitializingRoomEvent.event[0];
+
+            if (errorType === 'joinfailed' && retries > 0) {
+              retries -= 1;
+              setTimeout(() => client.send(`|/join ${battleRoom}`), retryDelay);
+            } else {
+              reject();
+            }
+          }
+        }),
+      ];
 
       client.send(`|/join ${battleRoom}`);
 
@@ -179,7 +180,7 @@ export const createBattleMonitor = (client: PrettyClient) => {
     unsubscribe: () => {
       unsubscribeFunctions.forEach((unsubscribeFunction) => unsubscribeFunction());
     },
-    battlePostHandler,
+    handleBattlePost,
     battleEventEmitter,
   };
 };
