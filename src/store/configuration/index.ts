@@ -6,10 +6,10 @@ import {
   GuildConfigurationKey,
   UserConfiguration,
   UserConfigurationKey,
-} from './types';
-import { InMemoryConfigurationStore } from './memory';
-import { OrderedFailThroughStore } from './fail-through';
-import { DynamoDBConfigurationStore } from './dynamodb';
+} from './types.js';
+import { InMemoryConfigurationStore } from './memory.js';
+import { OrderedFailThroughStore } from './fail-through.js';
+import { DynamoDBConfigurationStore } from './dynamodb.js';
 
 export {
   ConfigurationStore,

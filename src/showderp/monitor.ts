@@ -1,7 +1,7 @@
 import Emittery from 'emittery';
-import { Post } from '../types';
-import { ConfigurationStore } from '../store/configuration';
-import { getCatalog, getThread } from './yotsuba';
+import { Post } from '../types.js';
+import { ConfigurationStore } from '../store/configuration/index.js';
+import { getCatalog, getThread } from './yotsuba.js';
 
 const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga', 'dogars.org'];
 const battleLinkPatterns: RegExp[] = [

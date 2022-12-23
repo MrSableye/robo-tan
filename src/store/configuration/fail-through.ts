@@ -6,7 +6,7 @@ import {
   GuildConfigurationKey,
   UserConfiguration,
   UserConfigurationKey,
-} from './types';
+} from './types.js';
 
 export class OrderedFailThroughStore implements ConfigurationStore {
   configurationStores: ConfigurationStore[];

@@ -1,4 +1,4 @@
-import { createBot } from './bot';
+import { createBot } from './bot.js';
 
 console.time('Created bot');
 createBot({

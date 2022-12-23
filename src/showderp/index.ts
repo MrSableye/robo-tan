@@ -1,5 +1,5 @@
-import { createReactor } from './reactions';
-import { ShowderpMonitor, createShowderpMonitor } from './monitor';
+import { createReactor } from './reactions.js';
+import { ShowderpMonitor, createShowderpMonitor } from './monitor.js';
 
 export {
   createReactor,

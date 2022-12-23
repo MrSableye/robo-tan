@@ -4,7 +4,7 @@ import {
   getRandomSetId,
   getSet,
   searchSets,
-} from '..';
+} from '../api.js';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;

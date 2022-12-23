@@ -1,6 +1,6 @@
 import {
   createBattlePostHandler,
   createThreadHandler,
-} from './notifier';
+} from './notifier.js';
 
 export { createBattlePostHandler, createThreadHandler };

@@ -1,4 +1,4 @@
-import { DogarsSet } from '../types';
+import { DogarsSet } from '../types.js';
 
 interface Stats {
   HP?: number;

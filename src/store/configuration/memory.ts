@@ -7,7 +7,7 @@ import {
   GuildConfigurationKey,
   UserConfiguration,
   UserConfigurationKey,
-} from './types';
+} from './types.js';
 
 export class InMemoryConfigurationStore implements ConfigurationStore {
   cache: Cache;

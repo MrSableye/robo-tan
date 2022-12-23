@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CatalogPage, Thread } from '../types';
+import { CatalogPage, Thread } from '../types.js';
 
 export const getCatalog = async (board: string) => {
   console.time(`Retrieved /${board}/ catalog`);

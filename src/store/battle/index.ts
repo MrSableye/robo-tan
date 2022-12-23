@@ -1,10 +1,10 @@
 import {
   Battle,
   BattleStore,
-} from './types';
+} from './types.js';
 import {
   DynamoDBBattleStore,
-} from './dynamodb';
+} from './dynamodb.js';
 
 export {
   Battle,

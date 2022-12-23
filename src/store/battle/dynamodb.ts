@@ -2,7 +2,7 @@ import { DynamoDB } from 'aws-sdk';
 import {
   Battle,
   BattleStore,
-} from './types';
+} from './types.js';
 
 interface DynamoDBBattleStoreConfiguration {
   battleTableName: string;

@@ -1,7 +1,7 @@
 import Emittery, { UnsubscribeFunction } from 'emittery';
 import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
-import { BattlePostEvent } from '../discord/notifier';
-import { toId } from './utility';
+import { BattlePostEvent } from '../discord/notifier.js';
+import { toId } from './utility.js';
 
 type MatchResult = 'win' | 'tie' | 'loss';
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DogarsPage, DogarsSet } from '../types';
+import { DogarsPage, DogarsSet } from '../types.js';
 
 export const getSet = async (id: number): Promise<DogarsSet | undefined> => {
   try {

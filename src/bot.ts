@@ -1,17 +1,17 @@
 import Discord from 'discord.js';
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { DynamoDB } from 'aws-sdk';
 import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
   OrderedFailThroughStore,
-} from './store/configuration';
-import { DynamoDBBattleStore } from './store/battle';
-import { createBattleMonitor } from './showdown';
-import { createReactor, createShowderpMonitor } from './showderp';
-import { BotSettings } from './settings';
-import { DogarsChatClient } from './dogars';
-import { createBattlePostHandler, createThreadHandler } from './discord';
+} from './store/configuration/index.js';
+import { DynamoDBBattleStore } from './store/battle/index.js';
+import { createBattleMonitor } from './showdown/index.js';
+import { createReactor, createShowderpMonitor } from './showderp/index.js';
+import { BotSettings } from './settings.js';
+import { DogarsChatClient } from './dogars/index.js';
+import { createBattlePostHandler, createThreadHandler } from './discord/index.js';
 
 export const createBot = async (settings: BotSettings) => {
   const dynamoDBClient = new DynamoDB.DocumentClient();
@@ -32,7 +32,7 @@ export const createBot = async (settings: BotSettings) => {
     dynamoDBConfigurationStore,
   ]);
 
-  const discordClient = new Discord.Client();
+  const discordClient = new Discord.Client({ intents: [] });
 
   const {
     timeout: showderpMonitorTimeout,

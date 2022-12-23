@@ -1,11 +1,11 @@
-import { setToString } from './utility';
-import { DogarsChatClient } from './chat';
+import { setToString } from './utility.js';
+import { DogarsChatClient } from './chat.js';
 import {
   advancedSearchSets,
   getRandomSetId,
   getSet,
   searchSets,
-} from './api';
+} from './api.js';
 
 export {
   advancedSearchSets,

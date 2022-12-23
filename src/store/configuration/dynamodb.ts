@@ -1,4 +1,4 @@
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { DynamoDB } from 'aws-sdk';
 import {
   ConfigurationStore,
   GlobalConfiguration,
@@ -7,7 +7,7 @@ import {
   GuildConfigurationKey,
   UserConfiguration,
   UserConfigurationKey,
-} from './types';
+} from './types.js';
 
 export class DynamoDBConfigurationStore implements ConfigurationStore {
   client: DynamoDB.DocumentClient;

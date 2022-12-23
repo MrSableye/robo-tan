@@ -1,7 +1,7 @@
 import { UnsubscribeFunction } from 'emittery';
 import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
-import { toId } from '../showdown';
-import { DogarsChatClient } from '../dogars';
+import { toId } from '../showdown/index.js';
+import { DogarsChatClient } from '../dogars/index.js';
 
 interface TurnData {
   critMons: Set<string>,
