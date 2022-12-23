@@ -3,7 +3,10 @@ import { DogarsPage, DogarsSet } from '../types.js';
 
 export const getSet = async (id: number): Promise<DogarsSet | undefined> => {
   try {
-    return (await axios.get<DogarsSet>(`https://dogars.org/api/sets/${id}`, { responseType: 'json' })).data;
+    return (await axios.get<DogarsSet>(`https://dogars.org/api/sets/${id}`, {
+      responseType: 'json',
+      headers: { 'Accept-Encoding': '*' },
+    })).data;
   } catch (error) {
     // TODO: Log error
     return undefined;
@@ -12,7 +15,10 @@ export const getSet = async (id: number): Promise<DogarsSet | undefined> => {
 
 export const getRandomSetId = async () => {
   try {
-    return (await axios.get<number>('https://dogars.org/api/random', { responseType: 'json' })).data;
+    return (await axios.get<number>('https://dogars.org/api/random', {
+      responseType: 'json',
+      headers: { 'Accept-Encoding': '*' },
+    })).data;
   } catch (error) {
     // TODO: Log error
     return undefined;
@@ -21,7 +27,11 @@ export const getRandomSetId = async () => {
 
 export const searchSets = async (query: string): Promise<DogarsPage | undefined> => {
   try {
-    return (await axios.get<DogarsPage>('https://dogars.org/api/search', { responseType: 'json', params: { q: query, page: 1 } })).data;
+    return (await axios.get<DogarsPage>('https://dogars.org/api/search', {
+      responseType: 'json',
+      params: { q: query, page: 1 },
+      headers: { 'Accept-Encoding': '*' },
+    })).data;
   } catch (error) {
     // TODO: Log error
     return undefined;
@@ -38,7 +48,11 @@ export const advancedSearchSets = async (
       params.random = 'true';
     }
 
-    return (await axios.get<DogarsPage>('https://dogars.org/api/search', { responseType: 'json', params })).data;
+    return (await axios.get<DogarsPage>('https://dogars.org/api/search', {
+      responseType: 'json',
+      params,
+      headers: { 'Accept-Encoding': '*' },
+    })).data;
   } catch (error) {
     // TODO: Log error
     return undefined;
