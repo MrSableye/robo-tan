@@ -109,6 +109,19 @@ export const createReactor = (
     const roomData = rooms[room];
 
     if (roomData && roomData.numberGreetings < 5) {
+      if (/v\s+[^\s]/.test(message)) {
+        const random = Math.random();
+        if (random > 0.95) {
+          dogars.send(`${room}|me`);
+          roomData.numberGreetings += 1;
+          return;
+        } else if (random > 0.80) {
+          dogars.send(`${room}|--mirror--`);
+          roomData.numberGreetings += 1;
+          return;
+        }
+      }
+
       const matchedGreeting = greetings.find((greeting) => messageId === (toId(greeting) + ownId));
 
       if (matchedGreeting) {
@@ -124,7 +137,11 @@ export const createReactor = (
     if (room) {
       const { turn } = turnEvent.event[0];
       room.currentTurn = turn;
-      room.turns[turn] = { critMons: new Set(), faintedMons: new Set(), movesUsed: {} };
+      room.turns[turn] = {
+        critMons: new Set(),
+        faintedMons: new Set(),
+        movesUsed: {},
+      };
     }
   }));
 
