@@ -10,6 +10,8 @@ interface TurnData {
 }
 
 type Room = {
+  connectedAt: Date;
+  filterMessages: boolean;
   currentTurn: number;
   turns: Record<number, TurnData>;
   numberGreetings: number;
@@ -100,15 +102,17 @@ export const createReactor = (
     }
   };
 
-  unsubscribeFunctions.push(dogarsEventEmitter.on('message', ({ room, user, message }) => {
+  unsubscribeFunctions.push(dogarsEventEmitter.on('message', ({ room, timestamp, user, message }) => {
     const userId = toId(user);
     const messageId = toId(message);
+    const messageDate = new Date(timestamp);
 
     if (userId === ownId) return;
 
     const roomData = rooms[room];
 
-    if (roomData && roomData.numberGreetings < 5) {
+    if (roomData && !roomData.filterMessages && roomData.numberGreetings < 5) {
+      if (roomData.connectedAt > messageDate) return;
       if (/v\s+[^\s]/.test(message)) {
         const random = Math.random();
         if (random > 0.95) {
@@ -134,7 +138,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('turn', (turnEvent) => {
     const room = rooms[turnEvent.room];
 
-    if (room) {
+    if (room && !room.filterMessages) {
       const { turn } = turnEvent.event[0];
       room.currentTurn = turn;
       room.turns[turn] = {
@@ -148,7 +152,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('upkeep', (upkeepEvent) => {
     const room = rooms[upkeepEvent.room];
 
-    if (room) {
+    if (room && !room.filterMessages) {
       const endedTurn = room.turns[room.currentTurn];
 
       if (endedTurn) {
@@ -160,7 +164,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('crit', (critEvent) => {
     const room = rooms[critEvent.room];
 
-    if (room) {
+    if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
@@ -174,7 +178,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('faint', (faintEvent) => {
     const room = rooms[faintEvent.room];
 
-    if (room) {
+    if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
@@ -188,7 +192,7 @@ export const createReactor = (
   unsubscribeFunctions.push(showdownEventEmitter.on('move', (moveEvent) => {
     const room = rooms[moveEvent.room];
 
-    if (room) {
+    if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
@@ -205,8 +209,22 @@ export const createReactor = (
     }
   }));
 
+  unsubscribeFunctions.push(showdownEventEmitter.on('timestamp', (timestampEvent) => {
+    const room = rooms[timestampEvent.room];
+
+    if (room && room.filterMessages) {
+      const { timestamp } = timestampEvent.event[0];
+      const timestampDate = new Date(timestamp * 1000);
+      if (timestampDate > room.connectedAt) {
+        room.filterMessages = false;
+      }
+    }
+  }));
+
   unsubscribeFunctions.push(showdownEventEmitter.on('initializeRoom', (initializeRoomEvent) => {
     rooms[initializeRoomEvent.room] = {
+      connectedAt: new Date(),
+      filterMessages: true,
       currentTurn: 0,
       turns: { 0: { critMons: new Set(), faintedMons: new Set(), movesUsed: {} } },
       numberGreetings: 0,

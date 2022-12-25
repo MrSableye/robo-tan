@@ -5,6 +5,7 @@ import Emittery from 'emittery';
 interface ChatEvents {
   message: {
     room: string;
+    timestamp: number;
     user: string;
     message: string;
   }
@@ -60,10 +61,11 @@ export class DogarsChatClient {
   }
 
   private handleData(data: string) {
-    const [room, command,, user, message] = data.split('|').map((value) => value.trim());
+    const [room, command, timestamp, user, message] = data.split('|').map((value) => value.trim());
     if (command === 'c:') {
       this.eventEmitter.emit('message', {
         room: (room || '').substr(1),
+        timestamp: parseInt(timestamp || '') * 1000,
         user: (user || '').substr(1),
         message: message || '',
       });
