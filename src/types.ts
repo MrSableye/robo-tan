@@ -52,6 +52,7 @@ export interface Post {
   com?: string;
   tim?: number;
   ext?: string;
+  filename?: string;
 }
 
 export interface CatalogThread extends Post {

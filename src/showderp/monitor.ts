@@ -20,12 +20,18 @@ const isShowderpThread = (post: Post) => {
     .replace(/<wbr>/gm, '')
     .replace(/<(?:.|\n)*?>/gm, ' ')
     .toLowerCase();
+  const filename = (post.filename || '')
+    .replace(/<wbr>/gm, '')
+    .replace(/<(?:.|\n)*?>/gm, ' ')
+    .toLowerCase();
   const doesCommentContainKeyword = showderpKeywords
     .some((keyword) => comment.includes(keyword));
   const doesSubjectContainKeyword = showderpKeywords
     .some((keyword) => subject.includes(keyword));
+  const doesFilenameContainKeyword = showderpKeywords
+    .some((keyword) => filename.includes(keyword));
 
-  return doesCommentContainKeyword || doesSubjectContainKeyword;
+  return doesCommentContainKeyword || doesSubjectContainKeyword || doesFilenameContainKeyword;
 };
 
 const getCurrentThreads = async (): Promise<Post[]> => {

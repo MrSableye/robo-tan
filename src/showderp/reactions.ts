@@ -2,6 +2,9 @@ import { UnsubscribeFunction } from 'emittery';
 import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
 import { toId } from '../showdown/index.js';
 import { DogarsChatClient } from '../dogars/index.js';
+import { log } from '../logger.js';
+
+const REACTIONS_LOG_PREFIX = 'REACTIONS';
 
 interface TurnData {
   critMons: Set<string>,
@@ -111,9 +114,13 @@ export const createReactor = (
 
     const roomData = rooms[room];
 
-    if (roomData && !roomData.filterMessages && roomData.numberGreetings < 5) {
-      if (roomData.connectedAt > messageDate) return;
-      if (/v\s+[^\s]/.test(message)) {
+    if (roomData && !roomData.filterMessages && (roomData.numberGreetings < 5)) {
+      if (roomData.connectedAt > messageDate) {
+        log(REACTIONS_LOG_PREFIX, `[${room}] Previous message ignored: ${user}|${message}`);
+        return;
+      }
+
+      if (/^v\s+[^\s]/.test(message)) {
         const random = Math.random();
         if (random > 0.95) {
           dogars.send(`${room}|me`);
@@ -216,6 +223,7 @@ export const createReactor = (
       const { timestamp } = timestampEvent.event[0];
       const timestampDate = new Date(timestamp * 1000);
       if (timestampDate > room.connectedAt) {
+        log(REACTIONS_LOG_PREFIX, `Disabling filter in ${timestampEvent.rawEvent}`);
         room.filterMessages = false;
       }
     }
