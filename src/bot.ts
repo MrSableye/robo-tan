@@ -1,6 +1,6 @@
 import Discord from 'discord.js';
 import AWS from 'aws-sdk';
-import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
+import { ManagedShowdownClient } from 'borygon';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
@@ -61,25 +61,25 @@ export const createBot = async (settings: BotSettings) => {
     );
 
     const showdownUnsubscribeFunctions = [
-      showdownClient.lifecycleEmitter.on('connect', () => {
+      showdownClient.lifecycle.on('connect', () => {
         if (settings.showdown.avatar) {
           showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
         }
       }),
-      showdownClient.lifecycleEmitter.on('loginAssertion', (loginAssertion) => {
+      showdownClient.lifecycle.on('loginAssertion', (loginAssertion) => {
         if (settings.showdown.avatar) {
           showdownClient.send(`|/avatar ${settings.showdown.avatar}`);
         }
 
         dogarsChatClient.send(`|/trn ${settings.showdown.username},0,${loginAssertion}`);
       }),
-      showdownClient.eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-        log('DOGARS', `Joining Dogars chat for ${initializeRoomEvent.room}`);
-        dogarsChatClient.send(`|/join ${initializeRoomEvent.room}`, 10);
+      showdownClient.messages.on('initializeRoom', (initializeRoomMessage) => {
+        log('DOGARS', `Joining Dogars chat for ${initializeRoomMessage.room}`);
+        dogarsChatClient.send(`|/join ${initializeRoomMessage.room}`, 10);
       }),
-      showdownClient.eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-        log('DOGARS', `Joining Dogars chat for ${deinitializeRoomEvent.room}`);
-        dogarsChatClient.send(`|/leave ${deinitializeRoomEvent.room}`, 10);
+      showdownClient.messages.on('deinitializeRoom', (deinitializeRoomMessage) => {
+        log('DOGARS', `Joining Dogars chat for ${deinitializeRoomMessage.room}`);
+        dogarsChatClient.send(`|/leave ${deinitializeRoomMessage.room}`, 10);
       }),
     ];
 

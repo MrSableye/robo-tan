@@ -1,5 +1,5 @@
 import { UnsubscribeFunction } from 'emittery';
-import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
+import { ManagedShowdownClient } from 'borygon';
 import { toId } from '../showdown/index.js';
 import { DogarsChatClient } from '../dogars/index.js';
 import { log } from '../logger.js';
@@ -74,7 +74,7 @@ export const createReactor = (
   dogars: DogarsChatClient,
 ) => {
   const ownId = toId(username);
-  const { eventEmitter: showdownEventEmitter } = client;
+  const { messages } = client;
   const { eventEmitter: dogarsEventEmitter } = dogars;
   const rooms: Rooms = {};
   const unsubscribeFunctions: UnsubscribeFunction[] = [];
@@ -142,11 +142,11 @@ export const createReactor = (
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('turn', (turnEvent) => {
-    const room = rooms[turnEvent.room];
+  unsubscribeFunctions.push(messages.on('turn', (turnMessage) => {
+    const room = rooms[turnMessage.room];
 
     if (room && !room.filterMessages) {
-      const { turn } = turnEvent.event[0];
+      const { turn } = turnMessage.message[0];
       room.currentTurn = turn;
       room.turns[turn] = {
         critMons: new Set(),
@@ -156,54 +156,54 @@ export const createReactor = (
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('upkeep', (upkeepEvent) => {
-    const room = rooms[upkeepEvent.room];
+  unsubscribeFunctions.push(messages.on('upkeep', (upkeepMessage) => {
+    const room = rooms[upkeepMessage.room];
 
     if (room && !room.filterMessages) {
       const endedTurn = room.turns[room.currentTurn];
 
       if (endedTurn) {
-        react(upkeepEvent.room, endedTurn);
+        react(upkeepMessage.room, endedTurn);
       }
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('crit', (critEvent) => {
-    const room = rooms[critEvent.room];
+  unsubscribeFunctions.push(messages.on('crit', (critMessage) => {
+    const room = rooms[critMessage.room];
 
     if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { player, subPosition } = critEvent.event[0].pokemon.position;
+        const { player, subPosition } = critMessage.message[0].pokemon.position;
         const fullPosition = player + (subPosition || '');
         currentTurn.critMons.add(fullPosition);
       }
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('faint', (faintEvent) => {
-    const room = rooms[faintEvent.room];
+  unsubscribeFunctions.push(messages.on('faint', (faintMessage) => {
+    const room = rooms[faintMessage.room];
 
     if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { player, subPosition } = faintEvent.event[0].pokemon.position;
+        const { player, subPosition } = faintMessage.message[0].pokemon.position;
         const fullPosition = player + (subPosition || '');
         currentTurn.faintedMons.add(fullPosition);
       }
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('move', (moveEvent) => {
-    const room = rooms[moveEvent.room];
+  unsubscribeFunctions.push(messages.on('move', (moveMessage) => {
+    const room = rooms[moveMessage.room];
 
     if (room && !room.filterMessages) {
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { move, user } = moveEvent.event[0];
+        const { move, user } = moveMessage.message[0];
         const moveId = toId(move);
 
         const movesUsed = currentTurn.movesUsed[moveId];
@@ -216,21 +216,21 @@ export const createReactor = (
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('timestamp', (timestampEvent) => {
-    const room = rooms[timestampEvent.room];
+  unsubscribeFunctions.push(messages.on('timestamp', (timestampMessage) => {
+    const room = rooms[timestampMessage.room];
 
     if (room && room.filterMessages) {
-      const { timestamp } = timestampEvent.event[0];
+      const { timestamp } = timestampMessage.message[0];
       const timestampDate = new Date(timestamp * 1000);
       if (timestampDate > room.connectedAt) {
-        log(REACTIONS_LOG_PREFIX, `Disabling filter in ${timestampEvent.rawEvent}`);
+        log(REACTIONS_LOG_PREFIX, `Disabling filter in ${timestampMessage.rawMessage}`);
         room.filterMessages = false;
       }
     }
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-    rooms[initializeRoomEvent.room] = {
+  unsubscribeFunctions.push(messages.on('initializeRoom', (initializeRoomMessage) => {
+    rooms[initializeRoomMessage.room] = {
       connectedAt: new Date(),
       filterMessages: true,
       currentTurn: 0,
@@ -239,11 +239,11 @@ export const createReactor = (
     };
   }));
 
-  unsubscribeFunctions.push(showdownEventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-    const room = rooms[deinitializeRoomEvent.room];
+  unsubscribeFunctions.push(messages.on('deinitializeRoom', (deinitializeRoomMessage) => {
+    const room = rooms[deinitializeRoomMessage.room];
 
     if (room) {
-      delete rooms[deinitializeRoomEvent.room];
+      delete rooms[deinitializeRoomMessage.room];
     }
   }));
 

@@ -1,5 +1,5 @@
 import Emittery, { UnsubscribeFunction } from 'emittery';
-import { ManagedShowdownClient } from '@showderp/pokemon-showdown-ts';
+import { ManagedShowdownClient } from 'borygon';
 import { BattlePostEvent } from '../discord/notifier.js';
 import { toId } from './utility.js';
 
@@ -31,55 +31,57 @@ type BattleLifecycleEvents = {
 };
 
 export const createBattleMonitor = (client: ManagedShowdownClient) => {
-  const { eventEmitter } = client;
+  const { messages } = client;
   const rooms: Rooms = {};
   const unsubscribeFunctions: UnsubscribeFunction[] = [];
   const battleEventEmitter = new Emittery<BattleLifecycleEvents>();
 
-  unsubscribeFunctions.push(eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-    rooms[initializeRoomEvent.room] = {
-      name: initializeRoomEvent.room,
+  unsubscribeFunctions.push(messages.on('initializeRoom', (initializeRoomMessage) => {
+    rooms[initializeRoomMessage.room] = {
+      name: initializeRoomMessage.room,
       start: new Date().getTime(),
       participants: {},
       teams: {},
     };
-    battleEventEmitter.emit('start', { roomName: initializeRoomEvent.room });
+    battleEventEmitter.emit('start', { roomName: initializeRoomMessage.room });
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('deinitializeRoom', (deinitializeRoomEvent) => {
-    const room = rooms[deinitializeRoomEvent.room];
+  unsubscribeFunctions.push(messages.on('deinitializeRoom', (deinitializeRoomMessage) => {
+    const room = rooms[deinitializeRoomMessage.room];
 
     if (room) {
       battleEventEmitter.emit('end', {
-        roomName: deinitializeRoomEvent.room,
+        roomName: deinitializeRoomMessage.room,
         room,
       });
 
-      setTimeout(() => delete rooms[deinitializeRoomEvent.room], 10000);
+      setTimeout(() => delete rooms[deinitializeRoomMessage.room], 10000);
     }
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('player', (playerEvent) => {
-    const room = rooms[playerEvent.room];
+  unsubscribeFunctions.push(messages.on('player', (playerMessage) => {
+    const room = rooms[playerMessage.room];
     if (room) {
-      const { username } = playerEvent.event[0].user;
-      const showdownId = toId(username);
+      const { user } = playerMessage.message[0];
+      if (user) {
+        const showdownId = toId(user.username);
 
-      room.participants[showdownId] = {
-        result: 'loss',
-        ...room.participants[showdownId],
-        isChamp: true,
-        player: playerEvent.event[0].player,
-        name: playerEvent.event[0].user.username,
-        avatar: playerEvent.event[0].avatar,
-      };
+        room.participants[showdownId] = {
+          result: 'loss',
+          ...room.participants[showdownId],
+          isChamp: true,
+          player: playerMessage.message[0].player,
+          name: user.username,
+          avatar: playerMessage.message[0].avatar,
+        };
+      }
     }
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('join', (joinEvent) => {
-    const room = rooms[joinEvent.room];
+  unsubscribeFunctions.push(messages.on('join', (joinMessage) => {
+    const room = rooms[joinMessage.room];
     if (room) {
-      const { username } = joinEvent.event[0].user;
+      const { username } = joinMessage.message[0].user;
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
@@ -90,10 +92,10 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
     }
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('win', (winEvent) => {
-    const room = rooms[winEvent.room];
+  unsubscribeFunctions.push(messages.on('win', (winMessage) => {
+    const room = rooms[winMessage.room];
     if (room) {
-      const { username } = winEvent.event[0].user;
+      const { username } = winMessage.message[0].user;
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
@@ -104,13 +106,13 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
         result: 'win',
       };
 
-      client.send(`${winEvent.room}|/savereplay`);
-      setTimeout(() => client.send(`${winEvent.room}|/leave`), 20 * 60 * 1000);
+      client.send(`${winMessage.room}|/savereplay`);
+      setTimeout(() => client.send(`${winMessage.room}|/leave`), 20 * 60 * 1000);
     }
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('tie', (tieEvent) => {
-    const room = rooms[tieEvent.room];
+  unsubscribeFunctions.push(messages.on('tie', (tieMessage) => {
+    const room = rooms[tieMessage.room];
     if (room) {
       Object.entries(room.participants).forEach(([playerId, player]) => {
         if (player.isChamp) {
@@ -122,16 +124,16 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
         }
       });
 
-      client.send(`${tieEvent.room}|/savereplay`);
-      setTimeout(() => client.send(`${tieEvent.room}|/leave`), 20 * 60 * 1000);
+      client.send(`${tieMessage.room}|/savereplay`);
+      setTimeout(() => client.send(`${tieMessage.room}|/leave`), 20 * 60 * 1000);
     }
   }));
 
-  unsubscribeFunctions.push(eventEmitter.on('teamPreview', (teamPreviewEvent) => {
-    const room = rooms[teamPreviewEvent.room];
+  unsubscribeFunctions.push(messages.on('teamPreview', (teamPreviewMessage) => {
+    const room = rooms[teamPreviewMessage.room];
     if (room) {
-      const { player } = teamPreviewEvent.event[0];
-      const { species } = teamPreviewEvent.event[0].pokemonDetails;
+      const { player } = teamPreviewMessage.message[0];
+      const { species } = teamPreviewMessage.message[0].pokemonDetails;
 
       room.teams[player] = [
         ...room.teams[player] || [],
@@ -148,17 +150,17 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
 
     await new Promise<void>((resolve, reject) => {
       const promiseUnsubscribeFunctions: UnsubscribeFunction[] = [
-        eventEmitter.on('initializeRoom', (initializeRoomEvent) => {
-          if (initializeRoomEvent.room === battleRoom) {
+        messages.on('initializeRoom', (initializeRoomMessage) => {
+          if (initializeRoomMessage.room === battleRoom) {
             promiseUnsubscribeFunctions.forEach(
               (promiseUnsubscribeFunction) => promiseUnsubscribeFunction(),
             );
             resolve();
           }
         }),
-        eventEmitter.on('errorInitializingRoom', (errorInitializingRoomEvent) => {
-          if (errorInitializingRoomEvent.room === battleRoom) {
-            const { errorType } = errorInitializingRoomEvent.event[0];
+        messages.on('errorInitializingRoom', (errorInitializingRoomMessage) => {
+          if (errorInitializingRoomMessage.room === battleRoom) {
+            const { errorType } = errorInitializingRoomMessage.message[0];
 
             if (errorType === 'joinfailed' && retries > 0) {
               retries -= 1;
