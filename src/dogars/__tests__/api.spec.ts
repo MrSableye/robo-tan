@@ -23,7 +23,7 @@ describe('advancedSearchSets', () => {
     expect(advancedSearchPage?.[1]).toEqual({ testKey: 'testValue' });
     expect(mockedLog).not.toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/search',
+      'https://showderp.fun/api/search',
       {
         params: { creator: 'me' },
         headers: { 'Accept-Encoding': '*' },
@@ -40,7 +40,7 @@ describe('advancedSearchSets', () => {
     expect(advancedSearchPage).toBeUndefined();
     expect(mockedLog).toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/search',
+      'https://showderp.fun/api/search',
       {
         params: { creator: 'me' },
         headers: { 'Accept-Encoding': '*' },
@@ -60,7 +60,7 @@ describe('getSet', () => {
     expect(set).toEqual({ testKey: 'testValue' });
     expect(mockedLog).not.toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/sets/1',
+      'https://showderp.fun/api/sets/1',
       {
         headers: { 'Accept-Encoding': '*' },
         responseType: 'json',
@@ -76,7 +76,7 @@ describe('getSet', () => {
     expect(set).toBeUndefined();
     expect(mockedLog).toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/sets/1',
+      'https://showderp.fun/api/sets/1',
       {
         headers: { 'Accept-Encoding': '*' },
         responseType: 'json',
@@ -95,7 +95,7 @@ describe('getRandomSetId', () => {
     expect(setId).toEqual(1);
     expect(mockedLog).not.toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/random',
+      'https://showderp.fun/api/random',
       {
         headers: { 'Accept-Encoding': '*' },
         responseType: 'json',
@@ -111,7 +111,7 @@ describe('getRandomSetId', () => {
     expect(setId).toBeUndefined();
     expect(mockedLog).toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/random',
+      'https://showderp.fun/api/random',
       {
         headers: { 'Accept-Encoding': '*' },
         responseType: 'json',
@@ -131,7 +131,7 @@ describe('searchSets', () => {
     expect(searchPage?.[1]).toEqual({ testKey: 'testValue' });
     expect(mockedLog).not.toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/search',
+      'https://showderp.fun/api/search',
       {
         params: { q: 'test', page: 1 },
         headers: { 'Accept-Encoding': '*' },
@@ -148,7 +148,7 @@ describe('searchSets', () => {
     expect(searchPage).toBeUndefined();
     expect(mockedLog).toHaveBeenCalled();
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://dogars.org/api/search',
+      'https://showderp.fun/api/search',
       {
         params: { q: 'test', page: 1 },
         headers: { 'Accept-Encoding': '*' },

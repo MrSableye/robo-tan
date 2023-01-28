@@ -32,7 +32,7 @@ interface DogarsChatClientOptions {
 }
 
 const defaultDogarsChatClientOptions: DogarsChatClientOptions = {
-  url: 'wss://dogars.org/chat/websocket',
+  url: 'wss://showderp.fun/chat/websocket',
   throttle: 300,
 };
 

@@ -3,10 +3,11 @@ import { Post } from '../types.js';
 import { ConfigurationStore } from '../store/configuration/index.js';
 import { getCatalog, getThread } from './yotsuba.js';
 
-const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga', 'dogars.org'];
+const showderpKeywords: string[] = ['showderp', 'dogars.ml', 'dogars.ga', 'dogars.org', 'showderp.fun', 'derp.show'];
 const battleLinkPatterns: RegExp[] = [
   /(https?:\/\/)?play.pokemonshowdown.com\/(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
   /(https?:\/\/)?play.dogars.org\/(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
+  /(https?:\/\/)?play.showderp.fun\/(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
   /(?<room>battle-[A-Za-b0-9]+-[A-Za-b0-9]+(-[A-Za-z0-9]+)?)/gi,
 ];
 const incompleteLinkPattern = /(?<room>gen[A-Za-b0-9]+-[0-9]+(-[A-Za-z0-9]+pw)?)/gi;
