@@ -59,8 +59,8 @@ const createBattlePostEmbed = (thread: Post, post: Post, battleRoom: string) => 
     url: `https://boards.4channel.org/vp/thread/${thread.no}#p${post.no}`,
   })
   .addFields({
-    name: 'Showderp Link (preferred)',
-    value: `[https://play.showderp.fun/${battleRoom}](https://play.showderp.fun/${battleRoom})`,
+    name: 'Showderp Link',
+    value: `[https://play.dogars.org/${battleRoom}](https://play.dogars.org/${battleRoom})`,
   })
   .addFields({
     name: 'Showdown Link (not recommended)',

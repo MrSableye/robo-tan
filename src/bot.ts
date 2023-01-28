@@ -117,7 +117,7 @@ export const createBot = async (settings: BotSettings) => {
       log('BATTLE', `Battle started: ${roomName}`);
 
       if (previousRoom) {
-        dogarsChatClient.send(`${previousRoom}|https://play.showderp.fun/${roomName}`);
+        dogarsChatClient.send(`${previousRoom}|https://play.dogars.org/${roomName}`);
       }
 
       previousRoom = roomName;
