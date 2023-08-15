@@ -62,7 +62,7 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
   unsubscribeFunctions.push(messages.on('player', (playerMessage) => {
     const room = rooms[playerMessage.room];
     if (room) {
-      const { user } = playerMessage.message[0];
+      const { user } = playerMessage.value.message;
       if (user) {
         const showdownId = toId(user.username);
 
@@ -70,9 +70,9 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
           result: 'loss',
           ...room.participants[showdownId],
           isChamp: true,
-          player: playerMessage.message[0].player,
+          player: playerMessage.value.message.player,
           name: user.username,
-          avatar: playerMessage.message[0].avatar,
+          avatar: playerMessage.value.message.avatar,
         };
       }
     }
@@ -81,7 +81,7 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
   unsubscribeFunctions.push(messages.on('join', (joinMessage) => {
     const room = rooms[joinMessage.room];
     if (room) {
-      const { username } = joinMessage.message[0].user;
+      const { username } = joinMessage.value.message.user;
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
@@ -95,7 +95,7 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
   unsubscribeFunctions.push(messages.on('win', (winMessage) => {
     const room = rooms[winMessage.room];
     if (room) {
-      const { username } = winMessage.message[0].user;
+      const { username } = winMessage.value.message.user;
       const showdownId = toId(username);
 
       room.participants[showdownId] = {
@@ -132,8 +132,8 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
   unsubscribeFunctions.push(messages.on('teamPreview', (teamPreviewMessage) => {
     const room = rooms[teamPreviewMessage.room];
     if (room) {
-      const { player } = teamPreviewMessage.message[0];
-      const { species } = teamPreviewMessage.message[0].pokemonDetails;
+      const { player } = teamPreviewMessage.value.message;
+      const { species } = teamPreviewMessage.value.message.pokemonDetails;
 
       room.teams[player] = [
         ...room.teams[player] || [],
@@ -160,7 +160,7 @@ export const createBattleMonitor = (client: ManagedShowdownClient) => {
         }),
         messages.on('errorInitializingRoom', (errorInitializingRoomMessage) => {
           if (errorInitializingRoomMessage.room === battleRoom) {
-            const { errorType } = errorInitializingRoomMessage.message[0];
+            const { errorType } = errorInitializingRoomMessage.value.message;
 
             if (errorType === 'joinfailed' && retries > 0) {
               retries -= 1;

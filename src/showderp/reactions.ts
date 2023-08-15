@@ -1,8 +1,8 @@
 import { UnsubscribeFunction } from 'emittery';
 import { ManagedShowdownClient } from 'borygon';
 import { toId } from '../showdown/index.js';
-import { DogarsChatClient } from '../dogars/index.js';
 import { log } from '../logger.js';
+import { DogarsChatClient } from '../dogars/index.js';
 
 const REACTIONS_LOG_PREFIX = 'REACTIONS';
 
@@ -80,32 +80,37 @@ export const createReactor = (
   const unsubscribeFunctions: UnsubscribeFunction[] = [];
 
   const react = (room: string, turn: TurnData) => {
-    const messages: string[] = [];
+    const messagesToSend: string[] = [];
 
     turn.faintedMons.forEach((faintedMon) => {
       if (turn.critMons.has(faintedMon)) {
-        messages.push('crit mattered');
+        messagesToSend.push('crit mattered');
       }
     });
 
     if (turn.movesUsed.stealthrock) {
       const stealthRockUsers = turn.movesUsed.stealthrock;
       if (stealthRockUsers.length > 1) {
-        messages.push('smogon handshake 🤝');
+        messagesToSend.push('smogon handshake 🤝');
       } else if (stealthRockUsers.length === 1) {
         const firstUser = stealthRockUsers[0];
-        messages.push(`${firstUser} used **${randomSynonym()}**!`);
+        messagesToSend.push(`${firstUser} used **${randomSynonym()}**!`);
       }
     }
 
-    if (messages.length) {
-      const firstMessage = messages[0];
+    if (messagesToSend.length) {
+      const firstMessage = messagesToSend[0];
 
       dogars.send(`${room}|${firstMessage}`);
     }
   };
 
-  unsubscribeFunctions.push(dogarsEventEmitter.on('message', ({ room, timestamp, user, message }) => {
+  unsubscribeFunctions.push(dogarsEventEmitter.on('message', ({
+    room,
+    timestamp,
+    user,
+    message,
+  }) => {
     const userId = toId(user);
     const messageId = toId(message);
     const messageDate = new Date(timestamp);
@@ -126,7 +131,9 @@ export const createReactor = (
           dogars.send(`${room}|me`);
           roomData.numberGreetings += 1;
           return;
-        } else if (random > 0.80) {
+        }
+
+        if (random > 0.80) {
           dogars.send(`${room}|--mirror--`);
           roomData.numberGreetings += 1;
           return;
@@ -146,7 +153,7 @@ export const createReactor = (
     const room = rooms[turnMessage.room];
 
     if (room && !room.filterMessages) {
-      const { turn } = turnMessage.message[0];
+      const { turn } = turnMessage.value.message;
       room.currentTurn = turn;
       room.turns[turn] = {
         critMons: new Set(),
@@ -175,7 +182,7 @@ export const createReactor = (
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { player, subPosition } = critMessage.message[0].pokemon.position;
+        const { player, subPosition } = critMessage.value.message.pokemon.position;
         const fullPosition = player + (subPosition || '');
         currentTurn.critMons.add(fullPosition);
       }
@@ -189,7 +196,7 @@ export const createReactor = (
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { player, subPosition } = faintMessage.message[0].pokemon.position;
+        const { player, subPosition } = faintMessage.value.message.pokemon.position;
         const fullPosition = player + (subPosition || '');
         currentTurn.faintedMons.add(fullPosition);
       }
@@ -203,7 +210,7 @@ export const createReactor = (
       const currentTurn = room.turns[room.currentTurn];
 
       if (currentTurn) {
-        const { move, user } = moveMessage.message[0];
+        const { move, user } = moveMessage.value.message;
         const moveId = toId(move);
 
         const movesUsed = currentTurn.movesUsed[moveId];
@@ -220,7 +227,7 @@ export const createReactor = (
     const room = rooms[timestampMessage.room];
 
     if (room && room.filterMessages) {
-      const { timestamp } = timestampMessage.message[0];
+      const { timestamp } = timestampMessage.value.message;
       const timestampDate = new Date(timestamp * 1000);
       if (timestampDate > room.connectedAt) {
         log(REACTIONS_LOG_PREFIX, `Disabling filter in ${timestampMessage.rawMessage}`);
