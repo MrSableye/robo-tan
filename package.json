@@ -19,7 +19,7 @@
   "dependencies": {
     "aws-sdk": "^2.1281.0",
     "axios": "^1.2.1",
-    "borygon": "^0.9.2",
+    "borygon": "^0.10.2",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "emittery": "^1.0.1",

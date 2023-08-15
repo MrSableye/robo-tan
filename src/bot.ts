@@ -1,6 +1,6 @@
 import Discord from 'discord.js';
-import AWS from 'aws-sdk';
 import { ManagedShowdownClient } from 'borygon';
+import AWS from 'aws-sdk';
 import {
   DynamoDBConfigurationStore,
   InMemoryConfigurationStore,
@@ -10,9 +10,9 @@ import { DynamoDBBattleStore } from './store/battle/index.js';
 import { createBattleMonitor } from './showdown/index.js';
 import { createReactor, createShowderpMonitor } from './showderp/index.js';
 import { BotSettings } from './settings.js';
+import { log, logExecution } from './logger.js';
 import { DogarsChatClient } from './dogars/index.js';
 import { createBattlePostHandler, createThreadHandler } from './discord/index.js';
-import { log, logExecution } from './logger.js';
 
 const INITIALIZATION_LOG_PREFIX = 'INITIALIZATION';
 
@@ -57,7 +57,7 @@ export const createBot = async (settings: BotSettings) => {
       INITIALIZATION_LOG_PREFIX,
       'Connecting to Dogars',
       'Connected to Dogars',
-      async () => await dogarsChatClient.connect(),
+      () => dogarsChatClient.connect(),
     );
 
     const showdownUnsubscribeFunctions = [
@@ -97,14 +97,14 @@ export const createBot = async (settings: BotSettings) => {
       INITIALIZATION_LOG_PREFIX,
       'Connecting to Showdown',
       'Connected to Showdown',
-      async () => await showdownClient.connect(),
+      () => showdownClient.connect(),
     );
 
     await logExecution(
       INITIALIZATION_LOG_PREFIX,
       'Logging in to Showdown',
       'Logged in to Showdown',
-      async () => await showdownClient.login(
+      () => showdownClient.login(
         settings.showdown.username,
         settings.showdown.password,
         settings.showdown.avatar,
@@ -187,7 +187,7 @@ export const createBot = async (settings: BotSettings) => {
       INITIALIZATION_LOG_PREFIX,
       'Connecting to Discord',
       'Connected to Discord',
-      async () => await discordClient.login(settings.discord.token),
+      () => discordClient.login(settings.discord.token),
     );
   } catch (error) {
     log(INITIALIZATION_LOG_PREFIX, (error as Error)?.message, true);
